@@ -1,0 +1,13 @@
+.vscode
+*.sdf
+*.sln
+*.vcxproj*
+build
+*.dll
+
+Pacman/Debug
+Pacman/Release
+libs
+
+#Mac finder
+*.DS_Store
