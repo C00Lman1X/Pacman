@@ -18,26 +18,26 @@ public:
 		myY = anY;
 	}
 
-	const Vector2f Vector2f::operator-(const Vector2f &other) const 
+	const Vector2f operator-(const Vector2f &other) const 
 	{
 		Vector2f v(myX - other.myX, myY - other.myY);
 		return v;
 	}
 
-	const Vector2f Vector2f::operator+(const Vector2f &other) const 
+	const Vector2f operator+(const Vector2f &other) const 
 	{
 		Vector2f v(myX + other.myX, myY + other.myY);
 		return v;
 	}
 
 	
-	const Vector2f Vector2f::operator*(const Vector2f& other) const 
+	const Vector2f operator*(const Vector2f& other) const 
 	{
 		Vector2f v(myX*other.myX, myY*other.myY);
 		return v;
 	}
 
-	Vector2f& Vector2f::operator+=(const Vector2f &other) 
+	Vector2f& operator+=(const Vector2f &other) 
 	{
 		myX = myX + other.myX;
 		myY = myY + other.myY;
@@ -45,7 +45,7 @@ public:
 		return *this;
 	}
 
-	Vector2f& Vector2f::operator*=(const float aFloat) 
+	Vector2f& operator*=(const float aFloat) 
 	{
 		myX *= aFloat;
 		myY *= aFloat;
@@ -53,7 +53,7 @@ public:
 		return *this;
 	}
 
-	Vector2f& Vector2f::operator/=(const float aFloat) 
+	Vector2f& operator/=(const float aFloat) 
 	{
 		myX /= aFloat;
 		myY /= aFloat;
@@ -61,18 +61,18 @@ public:
 		return *this;
 	}
 
-	const Vector2f Vector2f::operator*(const float aValue) const 
+	const Vector2f operator*(const float aValue) const 
 	{
 		Vector2f v(myX * aValue, myY * aValue);
 		return v;
 	}
 
-	float Vector2f::Length() const
+	float Length() const
 	{
 		return sqrt(myX*myX + myY*myY);
 	}
 
-	void Vector2f::Normalize()
+	void Normalize()
 	{
 		float length = Length();
 

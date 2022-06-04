@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <string>
 #include "SDL_image.h"
 #include "SDL_rect.h"
 #include "SDL_ttf.h"
@@ -16,8 +17,8 @@ public:
 	static SpriteFont* Create(std::string assetPath, std::string initialText, SDL_Color color, int size, Drawer* drawer);
 	~SpriteFont(void);
 
-	void SpriteFont::SetText(std::string newTextString);
-	void SpriteFont::SetColor(SDL_Color newColor);
+	void SetText(std::string newTextString);
+	void SetColor(SDL_Color newColor);
 	void Draw(Drawer* drawer, int posX, int posY);
 
 private:
