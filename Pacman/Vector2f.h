@@ -18,6 +18,16 @@ public:
 		myY = anY;
 	}
 
+	bool operator==(const Vector2f &other) const
+	{
+		return myX == other.myX && myY == other.myY;
+	}
+	
+	bool operator!=(const Vector2f &other) const
+	{
+		return !(*this == other);
+	}
+
 	const Vector2f operator-(const Vector2f &other) const 
 	{
 		Vector2f v(myX - other.myX, myY - other.myY);

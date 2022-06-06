@@ -17,6 +17,8 @@ public:
 	static Drawer* Create(SDL_Window* aWindow, SDL_Renderer* aRenderer);
 	~Drawer(void);
 
+	SDL_Renderer* GetRenderer() { return myRenderer; }
+
 	SDL_Texture* GetTextureResource(std::string assetPath);
 	SDL_Texture* GetTextureResource(SDL_Surface* surface);
 	TTF_Font* GetFontResource(std::string assetPath, int size);

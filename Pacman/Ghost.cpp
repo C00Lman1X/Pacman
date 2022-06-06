@@ -72,8 +72,7 @@ void Ghost::Update(float aTime, World* aWorld, Avatar* avatar)
 		}
 	}
 
-	int tileSize = 22;
-	Vector2f destination(myNextTileX * tileSize, myNextTileY * tileSize);
+	Vector2f destination(myNextTileX * World::TILE_SIZE, myNextTileY * World::TILE_SIZE);
 	Vector2f direction = destination - myPosition;
 
 	float distanceToMove = aTime * speed;

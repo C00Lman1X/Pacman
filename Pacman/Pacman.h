@@ -24,7 +24,6 @@ private:
 	Pacman(Drawer* aDrawer);
 	bool Init();
 	bool UpdateInput();
-	void MoveAvatar();
 	bool CheckEndGameCondition();
 
 	void UpdateScore(int scoreGain);
@@ -39,8 +38,6 @@ private:
 	int myLives;
 	int myScore;
 	int myFps;
-
-	Vector2f myNextMovement;
 
 	Avatar* myAvatar;
 	std::list<Ghost*> ghosts;

@@ -45,6 +45,10 @@ SDL_Texture* Drawer::GetTextureResource(std::string assetPath)
 	else
 	{
 		texture = IMG_LoadTexture(myRenderer, assetPath.c_str());
+		if (!texture)
+		{
+			printf("Failed to load texture %s; SDL_error: %s", assetPath.c_str(), SDL_GetError());
+		}
 		textures[assetPath] = texture;
 	}
 
@@ -66,6 +70,11 @@ TTF_Font* Drawer::GetFontResource(std::string assetPath, int size)
 	else
 	{
 		font = TTF_OpenFont(assetPath.c_str(), 24);
+		if (!font)
+		{
+			printf("Failed to load font %s; SDL_error: %s", assetPath.c_str(), SDL_GetError());
+			font = TTF_OpenFont(assetPath.c_str(), 24);
+		}
 		fonts[assetPath] = font;
 	}
 

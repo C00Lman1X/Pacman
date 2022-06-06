@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <unordered_map>
 #include "Vector2f.h"
 #include "Sprite.h"
 
@@ -12,9 +13,22 @@ class Dot;
 class BigDot;
 class Cherry;
 
+struct pairIntIntHash
+{
+	size_t operator()(const std::pair<int, int>& p) const
+	{
+		// TODO: probably get rid of unordered_map, that's a poor hash for grid coords
+		return std::hash<int>{}(p.first) ^ std::hash<int>{}(p.second);
+	}
+};
+
 class World
 {
 public:
+	static constexpr int GAME_FIELD_X = 220;
+	static constexpr int GAME_FIELD_Y = 60;
+	static constexpr int TILE_SIZE = 22;
+
 	World(void);
 	~World(void);
 
@@ -32,9 +46,11 @@ public:
 
 	void GetPath(int aFromX, int aFromY, int aToX, int aToY, std::list<PathmapTile*>& aList);
 
+	PathmapTile* GetTileFromCoords(float x, float y);
+	PathmapTile* GetTile(int aFromX, int aFromY);
+
 private:
 
-	PathmapTile* GetTile(int aFromX, int aFromY);
 	bool Pathfind(PathmapTile* aFromTile, PathmapTile* aToTile, std::list<PathmapTile*>& aList);
 	bool ListDoesNotContain(PathmapTile* aFromTile, std::list<PathmapTile*>& aList);
 
@@ -43,7 +59,7 @@ private:
 	bool InitDots(Drawer* gameDrawer);
 	bool InitBigDots(Drawer* gameDrawer);
 
-	std::list<PathmapTile*> myPathmapTiles;
+	std::unordered_map<std::pair<int,int>, PathmapTile*, pairIntIntHash> myMap;
 	std::list<Dot*> myDots;
 	std::list<BigDot*> myBigDots;
 	std::list<Cherry*> myCherry;

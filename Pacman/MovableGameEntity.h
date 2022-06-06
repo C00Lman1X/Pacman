@@ -27,6 +27,8 @@ public:
 
 	bool IsAtDestination();
 
+	void Move();
+
 protected:
 
 	int myCurrentTileX;

@@ -41,7 +41,7 @@ bool World::InitPathmap()
 			for (unsigned int i = 0; i < line.length(); i++)
 			{
 				PathmapTile* tile = new PathmapTile(i, lineIndex, (line[i] == 'x'));
-				myPathmapTiles.push_back(tile);
+				myMap[std::pair<int,int>{i, lineIndex}] = tile;
 			}
 
 			lineIndex++;
@@ -73,7 +73,7 @@ bool World::InitDots(Drawer* gameDrawer)
 					assetPaths.clear();
 					assetPaths.push_back("Small_Dot_32.png");
 					newSprite = Sprite::Create(assetPaths, gameDrawer, 32, 32);
-					Dot* dot = new Dot(Vector2f(i*22, lineIndex*22), newSprite);
+					Dot* dot = new Dot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
 					myDots.push_back(dot);
 				}
 			}
@@ -107,7 +107,7 @@ bool World::InitBigDots(Drawer* gameDrawer)
 					assetPaths.clear();
 					assetPaths.push_back("Big_Dot_32.png");
 					newSprite = Sprite::Create(assetPaths, gameDrawer, 32, 32);
-					BigDot* dot = new BigDot(Vector2f(i*22, lineIndex*22), newSprite);
+					BigDot* dot = new BigDot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
 					myBigDots.push_back(dot);
 				}
 			}
@@ -135,14 +135,33 @@ void World::Draw(Drawer* aDrawer)
 		BigDot* dot = *list_iter;
 		dot->Draw(aDrawer);
 	}
+
+
+	for(auto& [tilePos, tile] : myMap)
+	{
+		SDL_Color color{255, 255, 255, 255};
+		if (tile->myIsBlockingFlag) color.r = 0;
+		if (tile->myIsVisitedFlag) color.g = 0;
+		// none - white
+		// IsVisited - purple
+		// IsBlocking - cyan
+		// IsBlocking IsVisited - green
+		SDL_SetRenderDrawColor(aDrawer->GetRenderer(), color.r, color.g, color.b, color.a);
+		SDL_Rect rect {
+			World::GAME_FIELD_X + tile->myX*World::TILE_SIZE+1,
+			World::GAME_FIELD_Y + tile->myY*World::TILE_SIZE+1,
+			World::TILE_SIZE-1,
+			World::TILE_SIZE-1};
+		SDL_RenderDrawRect(aDrawer->GetRenderer(), &rect);
+	}
 }
 
 bool World::TileIsValid(int anX, int anY)
 {
-	for(std::list<PathmapTile*>::iterator list_iter = myPathmapTiles.begin(); list_iter != myPathmapTiles.end(); list_iter++)
+	return !myMap.at(std::pair{anX, anY})->myIsBlockingFlag;
+	
+	for(auto& [tilePos, tile] : myMap)
 	{
-		PathmapTile* tile = *list_iter;
-
 		if (anX == tile->myX && anY == tile->myY && !tile->myIsBlockingFlag)
 			return true;
 	}
@@ -197,9 +216,8 @@ void World::GetPath(int aFromX, int aFromY, int aToX, int aToY, std::list<Pathma
 	PathmapTile* fromTile = GetTile(aFromX, aFromY);
 	PathmapTile* toTile = GetTile(aToX, aToY);
 
-	for(std::list<PathmapTile*>::iterator list_iter = myPathmapTiles.begin(); list_iter != myPathmapTiles.end(); list_iter++)
+	for(auto& [tilePos, tile] : myMap)
 	{
-		PathmapTile* tile = *list_iter;
 		tile->myIsVisitedFlag = false;
 	}
 
@@ -208,16 +226,16 @@ void World::GetPath(int aFromX, int aFromY, int aToX, int aToY, std::list<Pathma
 
 PathmapTile* World::GetTile(int aFromX, int aFromY)
 {
-	for(std::list<PathmapTile*>::iterator list_iter = myPathmapTiles.begin(); list_iter != myPathmapTiles.end(); list_iter++)
-	{
-		PathmapTile* tile = *list_iter;
-		if (tile->myX == aFromX && tile->myY == aFromY)
-		{
-			return tile;
-		}
-	}
+	auto pos = std::make_pair(aFromX, aFromY);
+	if (myMap.find(pos) != myMap.end())
+		return myMap[pos];
+	
+	return nullptr;
+}
 
-	return NULL;
+PathmapTile* World::GetTileFromCoords(float x, float y)
+{
+
 }
 
 bool World::ListDoesNotContain(PathmapTile* aFromTile, std::list<PathmapTile*>& aList)

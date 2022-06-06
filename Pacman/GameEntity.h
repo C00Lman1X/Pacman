@@ -25,7 +25,7 @@ protected:
 
 	Sprite* sprite;
 	bool myIdMarkedForDeleteFlag;
-	Vector2f myPosition;
+	Vector2f myPosition; // relative to game field
 };
 
 #endif // GAMEENTITY_H

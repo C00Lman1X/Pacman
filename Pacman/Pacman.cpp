@@ -27,7 +27,6 @@ Pacman* Pacman::Create(Drawer* aDrawer)
 Pacman::Pacman(Drawer* aDrawer)
 : myDrawer(aDrawer)
 , myTimeToNextUpdate(0.f)
-, myNextMovement(-1.f,0.f)
 , myScore(0)
 , myFps(0)
 , myLives(3)
@@ -35,6 +34,36 @@ Pacman::Pacman(Drawer* aDrawer)
 {
 	Sprite* newSprite = NULL;
 	std::list<std::string> assetPaths;
+
+	assetPaths.clear();
+	assetPaths.push_back("ghost_32_cyan.png");
+	assetPaths.push_back("Ghost_Vulnerable_32.png");
+	assetPaths.push_back("Ghost_Dead_32.png");
+	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Chase));
+
+	assetPaths.clear();
+	assetPaths.push_back("ghost_32_cyan.png");
+	assetPaths.push_back("Ghost_Vulnerable_32.png");
+	assetPaths.push_back("Ghost_Dead_32.png");
+	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Wander));
+
+	assetPaths.clear();
+	assetPaths.push_back("ghost_32_cyan.png");
+	assetPaths.push_back("Ghost_Vulnerable_32.png");
+	assetPaths.push_back("Ghost_Dead_32.png");
+	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Intercept));
+
+	assetPaths.clear();
+	assetPaths.push_back("ghost_32_cyan.png");
+	assetPaths.push_back("Ghost_Vulnerable_32.png");
+	assetPaths.push_back("Ghost_Dead_32.png");
+	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Fear));
+
+	myWorld = new World();
 
 	assetPaths.clear();
 	assetPaths.push_back("closed_right_32.png");
@@ -46,42 +75,12 @@ Pacman::Pacman(Drawer* aDrawer)
 	assetPaths.push_back("closed_up_32.png");
 	assetPaths.push_back("open_up_32.png");
 	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	myAvatar = new Avatar(Vector2f(13*22,22*22), newSprite);
+	myAvatar = new Avatar(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), newSprite, myWorld);
 
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*22,13*22), newSprite, Ghost::GhostBehavior::Chase));
-
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*22,13*22), newSprite, Ghost::GhostBehavior::Wander));
-
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*22,13*22), newSprite, Ghost::GhostBehavior::Intercept));
-
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*22,13*22), newSprite, Ghost::GhostBehavior::Fear));
-
-	myWorld = new World();
-
-	gameplayMessage = SpriteFont::Create("freefont-ttf\\sfd\\FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
-	scoreDisplay = SpriteFont::Create("freefont-ttf\\sfd\\FreeMono.ttf", "", { 0,255,0,255 }, 24, myDrawer);
-	livesDisplay = SpriteFont::Create("freefont-ttf\\sfd\\FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
-	fpsDisplay = SpriteFont::Create("freefont-ttf\\sfd\\FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
+	gameplayMessage = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
+	scoreDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 0,255,0,255 }, 24, myDrawer);
+	livesDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
+	fpsDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
 
 	UpdateLives(myLives);
 	UpdateScore(0);
@@ -110,7 +109,6 @@ bool Pacman::Update(float aTime)
 
 	std::list<Ghost*>::iterator ghostIterator;
 
-	MoveAvatar();
 	myAvatar->Update(aTime);
 	for (ghostIterator = ghosts.begin(); ghostIterator != ghosts.end(); ghostIterator++)
 		(*ghostIterator)->Update(aTime, myWorld, myAvatar);
@@ -150,8 +148,8 @@ bool Pacman::Update(float aTime)
 
 				if (myLives > 0)
 				{
-					myAvatar->Respawn(Vector2f(13 * 22, 22 * 22));
-					(*ghostIterator)->Respawn(Vector2f(13 * 22, 13 * 22));
+					myAvatar->Respawn(Vector2f(13 * World::TILE_SIZE, 22 * World::TILE_SIZE));
+					(*ghostIterator)->Respawn(Vector2f(13 * World::TILE_SIZE, 13 * World::TILE_SIZE));
 					break;
 				}
 				else
@@ -207,32 +205,18 @@ bool Pacman::UpdateInput()
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 
 	if (keystate[SDL_SCANCODE_UP])
-		myNextMovement = Vector2f(0.f, -1.f);
+		myAvatar->SetNextMovement(Vector2f(0.f, -1.f));
 	else if (keystate[SDL_SCANCODE_DOWN])
-		myNextMovement = Vector2f(0.f, 1.f);
+		myAvatar->SetNextMovement(Vector2f(0.f, 1.f));
 	else if (keystate[SDL_SCANCODE_RIGHT])
-		myNextMovement = Vector2f(1.f, 0.f);
+		myAvatar->SetNextMovement(Vector2f(1.f, 0.f));
 	else if (keystate[SDL_SCANCODE_LEFT])
-		myNextMovement = Vector2f(-1.f, 0.f);
+		myAvatar->SetNextMovement(Vector2f(-1.f, 0.f));
 
 	if (keystate[SDL_SCANCODE_ESCAPE])
 		return false;
 
 	return true;
-}
-
-void Pacman::MoveAvatar()
-{
-	int nextTileX = myAvatar->GetCurrentTileX() + myNextMovement.myX;
-	int nextTileY = myAvatar->GetCurrentTileY() + myNextMovement.myY;
-
-	if (myAvatar->IsAtDestination())
-	{
-		if (myWorld->TileIsValid(nextTileX, nextTileY))
-		{
-			myAvatar->SetNextTile(nextTileX, nextTileY);
-		}
-	}
 }
 
 bool Pacman::CheckEndGameCondition()

@@ -1,5 +1,6 @@
 #include "GameEntity.h"
 #include "Drawer.h"
+#include "World.h"
 
 GameEntity::GameEntity(const Vector2f& aPosition, Sprite* entitySprite)
 :myPosition(aPosition)
@@ -20,5 +21,5 @@ bool GameEntity::Intersect(GameEntity* aGameEntity)
 
 void GameEntity::Draw(Drawer* aDrawer)
 {
-	sprite->Draw(aDrawer, (int)myPosition.myX + 220, (int)myPosition.myY + 60);
+	sprite->Draw(aDrawer, (int)myPosition.myX + World::GAME_FIELD_X, (int)myPosition.myY + World::GAME_FIELD_Y);
 }
