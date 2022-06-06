@@ -22,7 +22,7 @@ void World::Init(Drawer* gameDrawer)
 	std::list<std::string> assetPaths;
 	assetPaths.push_back("playfield.png");
 	boardBackground = Sprite::Create(assetPaths, gameDrawer, 1024, 768);
-	boardBackground->SetFrame("playfield.png");
+	//boardBackground->SetFrame("playfield.png");
 	InitPathmap();
 	InitDots(gameDrawer);
 	InitBigDots(gameDrawer);
@@ -136,7 +136,7 @@ void World::Draw(Drawer* aDrawer)
 		dot->Draw(aDrawer);
 	}
 
-
+	return;
 	for(auto& [tilePos, tile] : myMap)
 	{
 		SDL_Color color{255, 255, 255, 255};

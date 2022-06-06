@@ -8,7 +8,6 @@ Ghost::Ghost(const Vector2f& aPosition, Sprite* entitySprite, GhostBehavior beha
 	: MovableGameEntity(aPosition, entitySprite),
 	myBehavior(behavior)
 {
-	sprite->SetFrame("ghost_32_cyan.png");
 
 	myIsClaimableFlag = false;
 	myIsDeadFlag = false;
@@ -92,7 +91,7 @@ void Ghost::Update(float aTime, World* aWorld, Avatar* avatar)
 
 void Ghost::SetImage(std::string anImage)
 {
-	sprite->SetFrame(anImage);
+	//sprite->SetFrame(anImage);
 }
 
 void Ghost::BehaveWander()

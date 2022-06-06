@@ -65,17 +65,7 @@ Pacman::Pacman(Drawer* aDrawer)
 
 	myWorld = new World();
 
-	assetPaths.clear();
-	assetPaths.push_back("closed_right_32.png");
-	assetPaths.push_back("open_right_32.png");
-	assetPaths.push_back("closed_down_32.png");
-	assetPaths.push_back("open_down_32.png");
-	assetPaths.push_back("closed_left_32.png");
-	assetPaths.push_back("open_left_32.png");
-	assetPaths.push_back("closed_up_32.png");
-	assetPaths.push_back("open_up_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	myAvatar = new Avatar(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), newSprite, myWorld);
+	myAvatar = new Avatar(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), myWorld, myDrawer);
 
 	gameplayMessage = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
 	scoreDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 0,255,0,255 }, 24, myDrawer);

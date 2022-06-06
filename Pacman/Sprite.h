@@ -4,6 +4,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <vector>
 #include "SDL_image.h"
 #include "SDL_rect.h"
 
@@ -16,15 +17,19 @@ public:
 	static Sprite* Create(std::list<std::string> assetPaths, Drawer* drawer, int sizeX, int sizeY);
 	~Sprite(void);
 
-	void SetFrame(std::string frameKey);
 	void Draw(Drawer* drawer, int posX, int posY);
 
+	void Update(float dt);
+
 private:
-	Sprite(std::map<std::string, SDL_Texture*> frameCollection, SDL_Rect sizeRect);
+	Sprite(std::vector<SDL_Texture*> frameCollection, SDL_Rect sizeRect);
 	
-	std::map<std::string, SDL_Texture*> textures;
-	std::string currentFrame;
+	std::vector<SDL_Texture*> texturesVec;
+	size_t currentFrameIdx = 0;
 	SDL_Rect frame;
+
+	float frameTime = 0.25f;
+	float timeSinceLastFrame = 0.f;
 };
 
 #endif // SPRITE_H

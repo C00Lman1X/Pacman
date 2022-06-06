@@ -3,13 +3,14 @@
 
 #include "MovableGameEntity.h"
 #include "Vector2f.h"
+#include "Sprite.h"
 
 class World;
 
 class Avatar : public MovableGameEntity
 {
 public:
-	Avatar(const Vector2f& aPosition, Sprite* entitySprite, World* world);
+	Avatar(const Vector2f& aPosition, World* world, Drawer* drawer);
 	~Avatar(void);
 
 	void Update(float aTime);
@@ -20,10 +21,12 @@ public:
 private:
 	bool TryTile(int x, int y);
 	void MyMove(float dt);
+	MovementDirection GetMovementDirection();
 
 private:
 	Vector2f myNextMovement;
 	float mySpeed = 60.f;
+	std::map<MovementDirection, Sprite*> mySprites;
 
 	World* myWorld;
 };

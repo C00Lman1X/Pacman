@@ -2,13 +2,19 @@
 #include "World.h"
 #include "PathmapTile.h"
 
-Avatar::Avatar(const Vector2f& aPosition, Sprite* entitySprite, World* world)
-	: MovableGameEntity(aPosition, entitySprite)
+Avatar::Avatar(const Vector2f& aPosition, World* world, Drawer* drawer)
+	: MovableGameEntity(aPosition, nullptr)
 	, myWorld(world)
 {
-	sprite->SetFrame("open_left_32.png");
 	myNextTileX = myCurrentTileX - 1;
 	myNextTileY = myCurrentTileY;
+
+	mySprites[MovementDirection::Up] = Sprite::Create({"open_up_32.png", "closed_up_32.png"}, drawer, 32, 32);
+	mySprites[MovementDirection::Down] = Sprite::Create({"open_down_32.png", "closed_down_32.png"}, drawer, 32, 32);
+	mySprites[MovementDirection::Left] = Sprite::Create({"open_left_32.png", "closed_left_32.png"}, drawer, 32, 32);
+	mySprites[MovementDirection::Right] = Sprite::Create({"open_right_32.png", "closed_right_32.png"}, drawer, 32, 32);
+
+	sprite = mySprites[MovementDirection::Left];
 }
 
 Avatar::~Avatar(void)
@@ -18,6 +24,10 @@ Avatar::~Avatar(void)
 void Avatar::Update(float aTime)
 {
 	MyMove(aTime);
+	for(auto& [dir, mappedSprite] : mySprites)
+		mappedSprite->Update(aTime);
+	
+	sprite = mySprites[GetMovementDirection()]; //TODO: change sprite only when changing direction
 }
 
 bool Avatar::TryTile(int x, int y)
@@ -103,4 +113,16 @@ void Avatar::MyMove(float dt)
 		direction.Normalize();
 		myPosition += direction * distanceToMove;
 	}
+}
+
+Avatar::MovementDirection Avatar::GetMovementDirection()
+{
+	if (myNextTileX > myCurrentTileX)
+		return MovementDirection::Right;
+	else if (myNextTileX < myCurrentTileX)
+		return MovementDirection::Left;
+	else if (myNextTileY < myCurrentTileY)
+		return MovementDirection::Up;
+	else // (myNextTileY >= myCurrentTileY)
+		return MovementDirection::Down;
 }
