@@ -59,9 +59,7 @@ private:
 	bool ListDoesNotContain(PathmapTile* aFromTile, std::list<PathmapTile*>& aList);
 
 
-	bool InitPathmap();
-	bool InitDots(Drawer* gameDrawer);
-	bool InitBigDots(Drawer* gameDrawer);
+	bool InitMap(Drawer* gameDrawer);
 
 	std::unordered_map<std::pair<int,int>, PathmapTile*, pairIntIntHash> myMap;
 	std::list<Dot*> myDots;

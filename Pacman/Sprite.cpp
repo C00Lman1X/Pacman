@@ -38,7 +38,7 @@ void Sprite::Draw(Drawer* drawer, int posX, int posY)
 
 void Sprite::Update(float dt)
 {
-	if (texturesVec.size() == 1)
+	if (texturesVec.size() <= 1)
 		return;
 		
 	timeSinceLastFrame += dt;
@@ -46,8 +46,6 @@ void Sprite::Update(float dt)
 	{
 		while(timeSinceLastFrame > frameTime) timeSinceLastFrame -= frameTime;
 
-		currentFrameIdx++;
-		if (currentFrameIdx >= texturesVec.size())
-			currentFrameIdx = 0;
+		currentFrameIdx = (currentFrameIdx + 1) % texturesVec.size();
 	}
 }

@@ -22,16 +22,11 @@ World::~World(void)
 
 void World::Init(Drawer* gameDrawer)
 {
-	std::list<std::string> assetPaths;
-	assetPaths.push_back("playfield.png");
-	boardBackground = Sprite::Create(assetPaths, gameDrawer, 1024, 768);
-	//boardBackground->SetFrame("playfield.png");
-	InitPathmap();
-	InitDots(gameDrawer);
-	InitBigDots(gameDrawer);
+	boardBackground = Sprite::Create({"playfield.png"}, gameDrawer, 1024, 768);
+	InitMap(gameDrawer);
 }
 
-bool World::InitPathmap()
+bool World::InitMap(Drawer* gameDrawer)
 {
 	std::string line;
 	std::ifstream myfile ("map.txt");
@@ -43,74 +38,21 @@ bool World::InitPathmap()
 			std::getline (myfile,line);
 			for (unsigned int i = 0; i < line.length(); i++)
 			{
+				if (line[i] == '\r' || line[i] == '\n')
+					continue;
 				PathmapTile* tile = new PathmapTile(i, lineIndex, (line[i] == 'x'));
 				myMap[std::pair<int,int>{i, lineIndex}] = tile;
-			}
 
-			lineIndex++;
-		}
-		myfile.close();
-	}
-
-	return true;
-}
-
-bool World::InitDots(Drawer* gameDrawer)
-{
-	Sprite* newSprite = NULL;
-	std::list<std::string> assetPaths;
-
-	std::string line;
-	std::ifstream myfile ("map.txt");
-
-	if (myfile.is_open())
-	{
-		int lineIndex = 0;
-		while (! myfile.eof() )
-		{
-			std::getline (myfile,line);
-			for (unsigned int i = 0; i < line.length(); i++)
-			{
 				if (line[i] == '.')
 				{
-					assetPaths.clear();
-					assetPaths.push_back("Small_Dot_32.png");
-					newSprite = Sprite::Create(assetPaths, gameDrawer, 32, 32);
-					Dot* dot = new Dot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
+					auto newSprite = Sprite::Create({"Small_Dot_32.png"}, gameDrawer, 32, 32);
+					auto dot = new Dot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
 					myDots.push_back(dot);
 				}
-			}
-
-			lineIndex++;
-		}
-		myfile.close();
-	}
-
-	return true;
-}
-
-bool World::InitBigDots(Drawer* gameDrawer)
-{
-	Sprite* newSprite = NULL;
-	std::list<std::string> assetPaths;
-
-	std::string line;
-	std::ifstream myfile ("map.txt");
-
-	if (myfile.is_open())
-	{
-		int lineIndex = 0;
-		while (! myfile.eof() )
-		{
-			std::getline (myfile,line);
-			for (unsigned int i = 0; i < line.length(); i++)
-			{
 				if (line[i] == 'o')
 				{
-					assetPaths.clear();
-					assetPaths.push_back("Big_Dot_32.png");
-					newSprite = Sprite::Create(assetPaths, gameDrawer, 32, 32);
-					BigDot* dot = new BigDot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
+					auto newSprite = Sprite::Create({"Big_Dot_32.png"}, gameDrawer, 32, 32);
+					auto dot = new BigDot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
 					myBigDots.push_back(dot);
 				}
 			}
@@ -127,15 +69,13 @@ void World::Draw(Drawer* aDrawer)
 {
 	boardBackground->Draw(aDrawer, 0, 0);
 
-	for(std::list<Dot*>::iterator list_iter = myDots.begin(); list_iter != myDots.end(); list_iter++)
+	for(Dot* dot : myDots)
 	{
-		Dot* dot = *list_iter;
 		dot->Draw(aDrawer);
 	}
 
-	for(std::list<BigDot*>::iterator list_iter = myBigDots.begin(); list_iter != myBigDots.end(); list_iter++)
+	for(BigDot* dot : myBigDots)
 	{
-		BigDot* dot = *list_iter;
 		dot->Draw(aDrawer);
 	}
 
