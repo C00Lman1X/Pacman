@@ -17,17 +17,20 @@ public:
 
 	void SetNextMovement(const Vector2f& next) { myNextMovement = next; } 
 	Vector2f GetNextMovement() { return myNextMovement; }
+	MovementDirection GetMovementDirection();
+	Vector2f GetMovementDirectionVec();
+	Vector2f GetPreviousMovementDirectionVec();
 
 private:
 	bool TryTile(int x, int y);
 	bool TryTile(Vector2f tile);
 	void MyMove(float dt);
-	MovementDirection GetMovementDirection();
 
 private:
 	Vector2f myNextMovement;
 	float mySpeed = 200.f;
 	std::map<MovementDirection, Sprite*> mySprites;
+	MovementDirection myPreviousDirection;
 
 	World* myWorld;
 };

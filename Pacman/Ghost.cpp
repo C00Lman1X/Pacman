@@ -104,6 +104,8 @@ void Ghost::ChooseNextDirection(World* aWorld, Avatar* avatar)
 	allowedTiles.remove_if([this, aWorld](const Vector2f& tile) {
 		if (tile == myCurrentTile)
 			return true;
+		if (!IsHomeTile(myCurrentTile) && !IsDead() && IsHomeTile(tile))
+			return true;
 		return !aWorld->TileIsValid(tile);
 	});
 
@@ -165,16 +167,17 @@ Vector2f Ghost::BehaveChase(Avatar* avatar)
 		}
 		case GhostType::Pink:
 		{
-			Vector2f avatarDirection = avatar->GetNextTile() - avatar->GetCurrentTile();
-			targetTile = avatar->GetCurrentTile() + avatarDirection * 4.f;
+			Vector2f avatarDirectionVec = avatar->GetMovementDirectionVec();
+			targetTile = avatar->GetCurrentTile() + avatarDirectionVec * 4.f;
 			break;
 		}
 		case GhostType::Cyan:
 		{
 			Vector2f redGhostTile = myRedGhost->GetCurrentTile();
 			
-			Vector2f avatarDirection = avatar->GetNextTile() - avatar->GetCurrentTile();
-			Vector2f tileInFrontOfAvatar = avatar->GetCurrentTile() + avatarDirection * 2.f;
+			Vector2f avatarDirectionVec = avatar->GetMovementDirectionVec();
+
+			Vector2f tileInFrontOfAvatar = avatar->GetCurrentTile() + avatarDirectionVec * 2.f;
 			Vector2f directionToRed = redGhostTile - tileInFrontOfAvatar;
 			targetTile = tileInFrontOfAvatar + (directionToRed * -1.f);
 
@@ -183,7 +186,7 @@ Vector2f Ghost::BehaveChase(Avatar* avatar)
 		case GhostType::Orange:
 		{
 			float distanceToAvatar = (avatar->GetCurrentTile() - myCurrentTile).Length();
-			if (distanceToAvatar <= 8)
+			if (distanceToAvatar <= 8.f)
 			{
 				targetTile = BehaveScatter();
 			}

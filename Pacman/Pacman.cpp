@@ -72,8 +72,8 @@ bool Pacman::Update(float aTime)
 	std::list<Ghost*>::iterator ghostIterator;
 
 	myAvatar->Update(aTime);
-	for (ghostIterator = ghosts.begin(); ghostIterator != ghosts.end(); ghostIterator++)
-		(*ghostIterator)->Update(aTime, myWorld, myAvatar);
+	for (Ghost* ghost : ghosts)
+		ghost->Update(aTime, myWorld, myAvatar);
 
 	if (myWorld->HasIntersectedDot(myAvatar->GetPosition()))
 	{

@@ -41,6 +41,8 @@ public:
 	GhostType GetType() const { return myType; }
 	GhostBehavior GetBehavior() const { return myBehavior; }
 
+	static bool IsHomeTile(const Vector2f& tile);
+
 protected:
 	void UpdateSprite();
 
@@ -50,7 +52,6 @@ protected:
 	Vector2f BehaveDead();
 	Vector2f BehaveFear(const std::list<Vector2f>& allowedTiles);
 	Vector2f BehaveHome();
-	bool IsHomeTile(const Vector2f& tile);
 	bool CanLeaveHome();
 
 	Ghost* myRedGhost = nullptr; // for cyan ghost

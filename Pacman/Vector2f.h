@@ -19,6 +19,12 @@ public:
 		myY = anY;
 	}
 
+	Vector2f(int anX, int anY)
+	{
+		myX = anX;
+		myY = anY;
+	}
+
 	bool operator==(const Vector2f &other) const
 	{
 		return myX == other.myX && myY == other.myY;

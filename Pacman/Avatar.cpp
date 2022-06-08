@@ -1,6 +1,7 @@
 #include "Avatar.h"
 #include "World.h"
 #include "PathmapTile.h"
+#include "Ghost.h"
 
 Avatar::Avatar(const Vector2f& aPosition, World* world, Drawer* drawer)
 	: MovableGameEntity(aPosition, nullptr)
@@ -32,9 +33,11 @@ void Avatar::Update(float aTime)
 bool Avatar::TryTile(int x, int y)
 {
 	PathmapTile* desiredTile = myWorld->GetTile(x, y);
-	if (desiredTile && !desiredTile->myIsBlockingFlag)
+	if (desiredTile
+		&& !desiredTile->myIsBlockingFlag
+		&& !Ghost::IsHomeTile({desiredTile->myX, desiredTile->myY}))
 	{
-		myNextTile = {(float)x, (float)y};
+		myNextTile = {x, y};
 		return true;
 	}
 	return false;
@@ -82,7 +85,7 @@ void Avatar::MyMove(float dt)
 	{
 		//steped on next tile
 		myPosition = nextTilePos;
-		Vector2f previousDirection = myNextTile - myCurrentTile;
+		myPreviousDirection = GetMovementDirection();
 		myCurrentTile = myNextTile;
 		distanceToMove -= distanceToNextTile;
 
@@ -98,7 +101,7 @@ void Avatar::MyMove(float dt)
 			}
 		}
 		
-		Vector2f desiredTile = myCurrentTile + previousDirection;
+		Vector2f desiredTile = myCurrentTile + GetPreviousMovementDirectionVec();
 		if (!TryTile(desiredTile))
 		{
 			myNextTile = myCurrentTile;
@@ -117,6 +120,36 @@ Avatar::MovementDirection Avatar::GetMovementDirection()
 		return MovementDirection::Left;
 	else if (myNextTile.myY < myCurrentTile.myY)
 		return MovementDirection::Up;
-	else // (myNextTile.myY >= myCurrentTile.myY)
+	else if (myNextTile.myY >= myCurrentTile.myY)
 		return MovementDirection::Down;
+	else
+		return myPreviousDirection;
+}
+
+Vector2f Avatar::GetMovementDirectionVec()
+{
+	Vector2f directionVec{0.f, 0.f};
+	switch (GetMovementDirection())
+	{
+		case MovementDirection::Right: directionVec = {1.f, 0.f}; break;
+		case MovementDirection::Left: directionVec = {-1.f, 0.f}; break;
+		case MovementDirection::Up: directionVec = {0.f, -1.f}; break;
+		case MovementDirection::Down: directionVec = {0.f, 1.f}; break;
+		default: printf("ERROR: Wrong direction!\n"); break;
+	}
+	return directionVec;
+}
+
+Vector2f Avatar::GetPreviousMovementDirectionVec()
+{
+	Vector2f directionVec{0.f, 0.f};
+	switch (myPreviousDirection)
+	{
+		case MovementDirection::Right: directionVec = {1.f, 0.f}; break;
+		case MovementDirection::Left: directionVec = {-1.f, 0.f}; break;
+		case MovementDirection::Up: directionVec = {0.f, -1.f}; break;
+		case MovementDirection::Down: directionVec = {0.f, 1.f}; break;
+		default: printf("ERROR: Wrong direction!\n"); break;
+	}
+	return directionVec;
 }
