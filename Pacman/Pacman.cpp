@@ -11,33 +11,32 @@
 #include "Ghost.h"
 #include "SpriteFont.h"
 
-Pacman* Pacman::Create(Drawer* aDrawer)
+Pacman::Ptr Pacman::Create(Drawer::Ptr aDrawer)
 {
-	Pacman* pacman = new Pacman(aDrawer);
+	Pacman::Ptr pacman = std::shared_ptr<Pacman>(new Pacman{aDrawer});
 
 	if (!pacman->Init())
 	{
-		delete pacman;
-		pacman = NULL;
+		pacman = nullptr;
 	}
 
 	return pacman;
 }
 
-Pacman::Pacman(Drawer* aDrawer)
+Pacman::Pacman(Drawer::Ptr aDrawer)
 : myDrawer(aDrawer)
 , myScore(0)
 , myFps(0)
 , myLives(3)
 {
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Red, myDrawer));
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Cyan, myDrawer, ghosts.back()));
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Pink, myDrawer));
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Orange, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Red, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Cyan, myDrawer, ghosts.back()));
+	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Pink, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Orange, myDrawer));
 
-	myWorld = new World(this);
+	myWorld = std::make_shared<World>(this);
 
-	myAvatar = new Avatar(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), myWorld, myDrawer);
+	myAvatar = std::make_shared<Avatar>(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), myWorld, myDrawer);
 
 	gameplayMessage = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
 	scoreDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 0,255,0,255 }, 24, myDrawer);
@@ -69,10 +68,8 @@ bool Pacman::Update(float aTime)
 	else if (myLives <= 0)
 		return true;
 
-	std::list<Ghost*>::iterator ghostIterator;
-
 	myAvatar->Update(aTime);
-	for (Ghost* ghost : ghosts)
+	for (Ghost::Ptr ghost : ghosts)
 		ghost->Update(aTime, myWorld, myAvatar);
 
 	if (myWorld->TryEatDotAt(myAvatar->GetCurrentTile().myX, myAvatar->GetCurrentTile().myY))
@@ -181,10 +178,9 @@ bool Pacman::CheckEndGameCondition()
 
 bool Pacman::Draw()
 {
-	std::list<Ghost*>::iterator ghostIterator;
 	myWorld->Draw(myDrawer);
 	myAvatar->Draw(myDrawer);
-	for (Ghost* ghost : ghosts)
+	for (auto ghost : ghosts)
 		ghost->Draw(myDrawer);
 
 	scoreDisplay->Draw(myDrawer, 20, 50);

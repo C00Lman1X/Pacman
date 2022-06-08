@@ -1,6 +1,6 @@
 #include "BigDot.h"
 
-BigDot::BigDot(Vector2f aPosition, Sprite* entitySprite)
+BigDot::BigDot(Vector2f aPosition, Sprite::Ptr entitySprite)
 : StaticGameEntity(aPosition, entitySprite)
 {
 }

@@ -1,7 +1,7 @@
 #include "MovableGameEntity.h"
 #include "World.h"
 
-MovableGameEntity::MovableGameEntity(const Vector2f& aPosition, Sprite* entitySprite)
+MovableGameEntity::MovableGameEntity(const Vector2f& aPosition, Sprite::Ptr entitySprite)
 : GameEntity(aPosition, entitySprite)
 {
 	Vector2f tile = aPosition;

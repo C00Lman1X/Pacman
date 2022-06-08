@@ -14,16 +14,18 @@ class SpriteFont;
 class Pacman
 {
 public:
-	static Pacman* Create(Drawer* aDrawer);
+	using Ptr = std::shared_ptr<Pacman>;
+
+	static std::shared_ptr<Pacman> Create(std::shared_ptr<Drawer> aDrawer);
 	~Pacman(void);
 
 	bool Update(float aTime);
 	bool Draw();
 
-	const std::list<Ghost*> GetGhosts() const { return ghosts; }
+	const std::list<std::shared_ptr<Ghost>> GetGhosts() const { return ghosts; }
 
 private:
-	Pacman(Drawer* aDrawer);
+	Pacman(std::shared_ptr<Drawer> aDrawer);
 	bool Init();
 	bool UpdateInput();
 	bool CheckEndGameCondition();
@@ -32,20 +34,20 @@ private:
 	void UpdateLives(int lives);
 	void SetFPS(int fps);
 
-	Drawer* myDrawer;
+	std::shared_ptr<Drawer> myDrawer;
 
 	int myLives;
 	int myScore;
 	int myFps;
 
-	Avatar* myAvatar;
-	std::list<Ghost*> ghosts;
-	World* myWorld;
+	std::shared_ptr<Avatar> myAvatar;
+	std::list<std::shared_ptr<Ghost>> ghosts;
+	std::shared_ptr<World> myWorld;
 
-	SpriteFont* gameplayMessage;
-	SpriteFont* scoreDisplay;
-	SpriteFont* livesDisplay;
-	SpriteFont* fpsDisplay;
+	std::shared_ptr<SpriteFont> gameplayMessage;
+	std::shared_ptr<SpriteFont> scoreDisplay;
+	std::shared_ptr<SpriteFont> livesDisplay;
+	std::shared_ptr<SpriteFont> fpsDisplay;
 };
 
 #endif // PACMAN_H

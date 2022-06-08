@@ -4,14 +4,14 @@
 #include "SDL_rect.h"
 #include "SDL.h"
 
-SpriteFont* SpriteFont::Create(std::string assetPath, std::string initialText, SDL_Color initialColor, int size, Drawer* drawer)
+std::shared_ptr<SpriteFont> SpriteFont::Create(std::string assetPath, std::string initialText, SDL_Color initialColor, int size, Drawer::Ptr drawer)
 {
-	TTF_Font* font = drawer->GetFontResource(assetPath, size);
-	SpriteFont* newFont = new SpriteFont(font, initialText, initialColor, drawer);
+	std::shared_ptr<TTF_Font> font = drawer->GetFontResource(assetPath, size);
+	std::shared_ptr<SpriteFont> newFont = std::shared_ptr<SpriteFont>(new SpriteFont{font, initialText, initialColor, drawer});
 	return newFont;
 }
 
-SpriteFont::SpriteFont(TTF_Font* font, std::string initialText, SDL_Color initialColor, Drawer* drawer)
+SpriteFont::SpriteFont(std::shared_ptr<TTF_Font> font, std::string initialText, SDL_Color initialColor, Drawer::Ptr drawer)
 	: fontResource(font),
 	text(initialText),
 	fontColor(initialColor),
@@ -22,8 +22,6 @@ SpriteFont::SpriteFont(TTF_Font* font, std::string initialText, SDL_Color initia
 
 SpriteFont::~SpriteFont(void)
 {
-	SDL_DestroyTexture(printedText);
-	TTF_CloseFont(fontResource);
 }
 
 void SpriteFont::SetText(std::string newTextString)
@@ -40,7 +38,7 @@ void SpriteFont::SetColor(SDL_Color newColor)
 
 void SpriteFont::PrintToTexture()
 {
-	SDL_Surface* surface = TTF_RenderText_Solid(fontResource, text.c_str(), fontColor);
+	SDL_Surface* surface = TTF_RenderText_Solid(fontResource.get(), text.c_str(), fontColor);
 	if (!surface)
 		return;
 
@@ -54,7 +52,7 @@ void SpriteFont::PrintToTexture()
 	SDL_FreeSurface(surface);
 }
 
-void SpriteFont::Draw(Drawer* drawer, int posX, int posY)
+void SpriteFont::Draw(Drawer::Ptr drawer, int posX, int posY)
 {
 	drawer->Draw(printedText, frame, posX, posY);
 }

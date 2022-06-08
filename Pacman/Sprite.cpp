@@ -4,14 +4,14 @@
 #include "SDL_rect.h"
 #include "SDL.h"
 
-Sprite* Sprite::Create(std::list<std::string> assetPaths, Drawer* drawer, int sizeX, int sizeY)
+Sprite::Ptr Sprite::Create(std::list<std::string> assetPaths, Drawer::Ptr drawer, int sizeX, int sizeY)
 {
-	std::vector<SDL_Texture*> frameCollection;
+	std::vector<std::shared_ptr<SDL_Texture>> frameCollection;
 	std::list<std::string>::iterator it;
 
 	for(it = assetPaths.begin(); it != assetPaths.end(); it++)
 	{
-		SDL_Texture* texture = drawer->GetTextureResource(*it);
+		std::shared_ptr<SDL_Texture> texture = drawer->GetTextureResource(*it);
 		frameCollection.push_back(texture);
 	}
 
@@ -21,17 +21,17 @@ Sprite* Sprite::Create(std::list<std::string> assetPaths, Drawer* drawer, int si
     sizeRect.w = sizeX;
     sizeRect.h = sizeY;
 
-	Sprite* newSprite = new Sprite(frameCollection, sizeRect);
+	Sprite::Ptr newSprite = std::shared_ptr<Sprite>(new Sprite{frameCollection, sizeRect});
 	return newSprite;
 }
 
-Sprite::Sprite(std::vector<SDL_Texture*> frameCollection, SDL_Rect sizeRect)
+Sprite::Sprite(std::vector<std::shared_ptr<SDL_Texture>> frameCollection, SDL_Rect sizeRect)
 	: frame(sizeRect)
 {
 	texturesVec = frameCollection;
 }
 
-void Sprite::Draw(Drawer* drawer, int posX, int posY)
+void Sprite::Draw(Drawer::Ptr drawer, int posX, int posY)
 {
 	drawer->Draw(texturesVec[currentFrameIdx], frame, posX, posY);
 }

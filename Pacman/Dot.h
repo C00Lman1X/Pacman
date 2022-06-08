@@ -7,7 +7,9 @@
 class Dot : public StaticGameEntity
 {
 public:
-	Dot(Vector2f aPosition, Sprite* entitySprite);
+	using Ptr = std::shared_ptr<Dot>;
+
+	Dot(Vector2f aPosition, Sprite::Ptr entitySprite);
 	~Dot(void);
 };
 

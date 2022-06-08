@@ -12,6 +12,8 @@ class Avatar;
 class Ghost : public MovableGameEntity
 {
 public:
+	using Ptr = std::shared_ptr<Ghost>;
+
 	enum GhostBehavior
 	{
 		Scatter,
@@ -28,10 +30,10 @@ public:
 		Orange
 	};
 
-	Ghost(const Vector2f& aPosition, GhostType type, Drawer* drawer, Ghost* redGhost = nullptr);
+	Ghost(const Vector2f& aPosition, GhostType type, std::shared_ptr<Drawer> drawer, std::shared_ptr<Ghost> redGhost = nullptr);
 	~Ghost(void);
 
-	void Update(float aTime, World* aWorld, Avatar* avatar);
+	void Update(float aTime, std::shared_ptr<World> aWorld, std::shared_ptr<Avatar> avatar);
 
 	void SetState(GhostBehavior behavior);
 	bool IsDead() const { return myBehavior == GhostBehavior::Dead; }
@@ -46,24 +48,24 @@ public:
 protected:
 	void UpdateSprite();
 
-	void ChooseNextDirection(World* aWorld, Avatar* avatar);
+	void ChooseNextDirection(std::shared_ptr<World> aWorld, std::shared_ptr<Avatar> avatar);
 	Vector2f BehaveScatter();
-	Vector2f BehaveChase(Avatar* avatar);
+	Vector2f BehaveChase(std::shared_ptr<Avatar> avatar);
 	Vector2f BehaveDead();
 	Vector2f BehaveFear(const std::list<Vector2f>& allowedTiles);
 	Vector2f BehaveHome();
 	bool CanLeaveHome();
 
-	Ghost* myRedGhost = nullptr; // for cyan ghost
+	std::shared_ptr<Ghost> myRedGhost = nullptr; // for cyan ghost
 
 	GhostBehavior myBehavior;
 	GhostBehavior myPreviousBehavior;
 	GhostType myType;
 	Vector2f myDesiredMovement{0, -1}; // intended direction after myNextTile
 
-	Sprite* spriteNormal = nullptr;
-	Sprite* spriteFrightened = nullptr;
-	Sprite* spriteDead = nullptr;
+	std::shared_ptr<Sprite> spriteNormal = nullptr;
+	std::shared_ptr<Sprite> spriteFrightened = nullptr;
+	std::shared_ptr<Sprite> spriteDead = nullptr;
 
 	float myElapsedNormal = 0.f;
 	float myElapsedFrightened = 0.f;

@@ -5,7 +5,7 @@
 #include "Avatar.h"
 #include <algorithm>
 
-Ghost::Ghost(const Vector2f& aPosition, GhostType type, Drawer* drawer, Ghost* redGhost/* = nullptr*/)
+Ghost::Ghost(const Vector2f& aPosition, GhostType type, Drawer::Ptr drawer, Ghost::Ptr redGhost/* = nullptr*/)
 	: MovableGameEntity{aPosition, nullptr}
 	, myBehavior{GhostBehavior::Chase}
 	, myType{type}
@@ -31,7 +31,7 @@ Ghost::~Ghost(void)
 {
 }
 
-void Ghost::Update(float aTime, World* aWorld, Avatar* avatar)
+void Ghost::Update(float aTime, World::Ptr aWorld, Avatar::Ptr avatar)
 {
 	if (myBehavior != GhostBehavior::Dead)
 	{
@@ -93,7 +93,7 @@ void Ghost::Update(float aTime, World* aWorld, Avatar* avatar)
 	}
 }
 
-void Ghost::ChooseNextDirection(World* aWorld, Avatar* avatar)
+void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 {
 	std::list<Vector2f> allowedTiles {
 		myNextTile + Vector2f{0.f, -1.f},
@@ -155,7 +155,7 @@ Vector2f Ghost::BehaveScatter()
 	return targetTile;
 }
 
-Vector2f Ghost::BehaveChase(Avatar* avatar)
+Vector2f Ghost::BehaveChase(Avatar::Ptr avatar)
 {
 	Vector2f targetTile;
 	switch(myType)

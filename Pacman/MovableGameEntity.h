@@ -16,7 +16,7 @@ public:
 		DirectionCount = 4
 	};
 
-	MovableGameEntity(const Vector2f& aPosition, Sprite* entitySprite);
+	MovableGameEntity(const Vector2f& aPosition, Sprite::Ptr entitySprite);
 	~MovableGameEntity(void);
 
 	void Respawn(const Vector2f& aTile);

@@ -4,20 +4,19 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 
-Drawer* Drawer::Create(SDL_Window* aWindow, SDL_Renderer* aRenderer)
+Drawer::Ptr Drawer::Create(std::shared_ptr<SDL_Window> aWindow, std::shared_ptr<SDL_Renderer> aRenderer)
 {
-	Drawer* drawer = new Drawer(aWindow, aRenderer);
+	Drawer::Ptr drawer = std::shared_ptr<Drawer>(new Drawer{aWindow, aRenderer});
 
 	if (!drawer->Init())
 	{
-		delete drawer;
-		drawer = NULL;
+		drawer = nullptr;
 	}
 
 	return drawer;
 }
 
-Drawer::Drawer(SDL_Window* aWindow, SDL_Renderer* aRenderer)
+Drawer::Drawer(std::shared_ptr<SDL_Window> aWindow, std::shared_ptr<SDL_Renderer> aRenderer)
 : myWindow(aWindow)
 , myRenderer(aRenderer)
 {
@@ -35,16 +34,18 @@ bool Drawer::Init()
 	return true;
 }
 
-SDL_Texture* Drawer::GetTextureResource(std::string assetPath)
+std::shared_ptr<SDL_Texture> Drawer::GetTextureResource(std::string assetPath)
 {
-	SDL_Texture* texture = NULL;
+	std::shared_ptr<SDL_Texture> texture;
 
-	std::map<std::string, SDL_Texture*>::iterator textureFinder = textures.find(assetPath);
+	auto textureFinder = textures.find(assetPath);
 	if(textureFinder != textures.end())
 		texture = textureFinder->second;
 	else
 	{
-		texture = IMG_LoadTexture(myRenderer, assetPath.c_str());
+		texture = std::shared_ptr<SDL_Texture>(
+			IMG_LoadTexture(myRenderer.get(), assetPath.c_str()),
+			SDL_DestroyTexture);
 		if (!texture)
 		{
 			printf("Failed to load texture %s; SDL_error: %s", assetPath.c_str(), SDL_GetError());
@@ -55,25 +56,28 @@ SDL_Texture* Drawer::GetTextureResource(std::string assetPath)
 	return texture;
 }
 
-SDL_Texture* Drawer::GetTextureResource(SDL_Surface* surface)
+std::shared_ptr<SDL_Texture> Drawer::GetTextureResource(SDL_Surface* surface)
 {
-	return SDL_CreateTextureFromSurface(myRenderer, surface);
+	return std::shared_ptr<SDL_Texture>(
+		SDL_CreateTextureFromSurface(myRenderer.get(), surface),
+		SDL_DestroyTexture);
 }
 
-TTF_Font* Drawer::GetFontResource(std::string assetPath, int size)
+std::shared_ptr<TTF_Font> Drawer::GetFontResource(std::string assetPath, int size)
 {
-	TTF_Font* font = NULL;
+	std::shared_ptr<TTF_Font> font;
 
-	std::map<std::string, TTF_Font*>::iterator fontFinder = fonts.find(assetPath);
+	auto fontFinder = fonts.find(assetPath);
 	if (fontFinder != fonts.end())
 		font = fontFinder->second;
 	else
 	{
-		font = TTF_OpenFont(assetPath.c_str(), 24);
+		font = std::shared_ptr<TTF_Font>(
+			TTF_OpenFont(assetPath.c_str(), 24),
+			TTF_CloseFont);
 		if (!font)
 		{
 			printf("Failed to load font %s; SDL_error: %s", assetPath.c_str(), SDL_GetError());
-			font = TTF_OpenFont(assetPath.c_str(), 24);
 		}
 		fonts[assetPath] = font;
 	}
@@ -81,7 +85,7 @@ TTF_Font* Drawer::GetFontResource(std::string assetPath, int size)
 	return font;
 }
 
-void Drawer::Draw(SDL_Texture* texture, SDL_Rect frame, int aCellX = 0, int aCellY = 0)
+void Drawer::Draw(std::shared_ptr<SDL_Texture> texture, SDL_Rect frame, int aCellX = 0, int aCellY = 0)
 {
     SDL_Rect posRect;
     posRect.x = aCellX;
@@ -89,7 +93,7 @@ void Drawer::Draw(SDL_Texture* texture, SDL_Rect frame, int aCellX = 0, int aCel
 	posRect.w = frame.w;
 	posRect.h = frame.h;
 
-	SDL_RenderCopy(myRenderer, texture, &frame, &posRect);	
+	SDL_RenderCopy(myRenderer.get(), texture.get(), &frame, &posRect);	
 }
 
 void Drawer::DrawText(const char* aText, const char* aFontFile, int aX, int aY)
@@ -99,7 +103,7 @@ void Drawer::DrawText(const char* aText, const char* aFontFile, int aX, int aY)
 	SDL_Color fg={255,0,0,255};
 	SDL_Surface* surface = TTF_RenderText_Solid(font, aText, fg);
 
-	SDL_Texture* optimizedSurface = SDL_CreateTextureFromSurface(myRenderer, surface);
+	SDL_Texture* optimizedSurface = SDL_CreateTextureFromSurface(myRenderer.get(), surface);
 
     SDL_Rect sizeRect;
     sizeRect.x = 0 ;
@@ -113,7 +117,7 @@ void Drawer::DrawText(const char* aText, const char* aFontFile, int aX, int aY)
 	posRect.w = sizeRect.w;
 	posRect.h = sizeRect.h;
 
-	SDL_RenderCopy(myRenderer, optimizedSurface, &sizeRect, &posRect);
+	SDL_RenderCopy(myRenderer.get(), optimizedSurface, &sizeRect, &posRect);
 	SDL_DestroyTexture(optimizedSurface);
 	SDL_FreeSurface(surface);
 	TTF_CloseFont(font);

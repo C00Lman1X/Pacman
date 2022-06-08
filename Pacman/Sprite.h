@@ -14,17 +14,18 @@ class Drawer;
 class Sprite
 {
 public:
-	static Sprite* Create(std::list<std::string> assetPaths, Drawer* drawer, int sizeX, int sizeY);
-	~Sprite(void);
+	using Ptr = std::shared_ptr<Sprite>;
 
-	void Draw(Drawer* drawer, int posX, int posY);
+	static Sprite::Ptr Create(std::list<std::string> assetPaths, std::shared_ptr<Drawer> drawer, int sizeX, int sizeY);
+
+	void Draw(std::shared_ptr<Drawer> drawer, int posX, int posY);
 
 	void Update(float dt);
 
 private:
-	Sprite(std::vector<SDL_Texture*> frameCollection, SDL_Rect sizeRect);
+	Sprite(std::vector<std::shared_ptr<SDL_Texture>> frameCollection, SDL_Rect sizeRect);
 	
-	std::vector<SDL_Texture*> texturesVec;
+	std::vector<std::shared_ptr<SDL_Texture>> texturesVec;
 	size_t currentFrameIdx = 0;
 	SDL_Rect frame;
 

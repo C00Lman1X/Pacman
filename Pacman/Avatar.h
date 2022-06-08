@@ -10,7 +10,9 @@ class World;
 class Avatar : public MovableGameEntity
 {
 public:
-	Avatar(const Vector2f& aPosition, World* world, Drawer* drawer);
+	using Ptr = std::shared_ptr<Avatar>;
+
+	Avatar(const Vector2f& aPosition, std::shared_ptr<World> world, std::shared_ptr<Drawer> drawer);
 	~Avatar(void);
 
 	void Update(float aTime);
@@ -29,10 +31,10 @@ private:
 private:
 	Vector2f myNextMovement;
 	float mySpeed = 200.f;
-	std::map<MovementDirection, Sprite*> mySprites;
+	std::map<MovementDirection, Sprite::Ptr> mySprites;
 	MovementDirection myPreviousDirection;
 
-	World* myWorld;
+	std::shared_ptr<World> myWorld;
 };
 
 #endif //AVATAR_H

@@ -1,11 +1,14 @@
 #ifndef PATHMAPTILE_H
 #define PATHMAPTILE_H
 
+#include <memory>
+
 class Dot;
 class BigDot;
 
 struct PathmapTile
 {
+	using Ptr = std::shared_ptr<PathmapTile>;
 	PathmapTile(int anX, int anY, bool aIsBlockingFlag);
 	~PathmapTile(void);
 
@@ -13,8 +16,8 @@ struct PathmapTile
 	int myY;
 	bool myIsBlockingFlag;
 
-	Dot* myDot = nullptr;
-	BigDot* myBigDot = nullptr;
+	std::shared_ptr<Dot> myDot = nullptr;
+	std::shared_ptr<BigDot> myBigDot = nullptr;
 };
 
 #endif // PATHMAPTILE_H

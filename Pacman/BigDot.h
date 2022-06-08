@@ -7,7 +7,9 @@
 class BigDot : public StaticGameEntity
 {
 public:
-	BigDot(Vector2f aPosition, Sprite* entitySprite);
+	using Ptr = std::shared_ptr<BigDot>;
+
+	BigDot(Vector2f aPosition, Sprite::Ptr entitySprite);
 	~BigDot(void);
 };
 

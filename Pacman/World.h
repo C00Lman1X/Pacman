@@ -26,6 +26,8 @@ struct pairIntIntHash
 class World
 {
 public:
+	using Ptr = std::shared_ptr<World>;
+
 	static constexpr int GAME_FIELD_X = 220;
 	static constexpr int GAME_FIELD_Y = 60;
 	static constexpr int TILE_SIZE = 22;
@@ -33,9 +35,9 @@ public:
 	World(Pacman* game);
 	~World(void);
 
-	void Init(Drawer* gameDrawer);
+	void Init(std::shared_ptr<Drawer> gameDrawer);
 
-	void Draw(Drawer* aDrawer);
+	void Draw(std::shared_ptr<Drawer> aDrawer);
 	bool TileIsValid(int anX, int anY);
 	bool TileIsValid(Vector2f tile);
 
@@ -46,20 +48,20 @@ public:
 
 	void Update();
 
-	PathmapTile* GetTileFromCoords(float x, float y);
-	PathmapTile* GetTile(int aFromX, int aFromY);
+	std::shared_ptr<PathmapTile> GetTileFromCoords(float x, float y);
+	std::shared_ptr<PathmapTile> GetTile(int aFromX, int aFromY);
 
 	void SwitchDebugDraw() { myDebugDraw = !myDebugDraw; }
 
 private:
-	bool InitMap(Drawer* gameDrawer);
+	bool InitMap(std::shared_ptr<Drawer> gameDrawer);
 
-	std::unordered_map<std::pair<int,int>, PathmapTile*, pairIntIntHash> myMap;
-	std::list<Dot*> myDots;
-	std::list<BigDot*> myBigDots;
+	std::unordered_map<std::pair<int,int>, std::shared_ptr<PathmapTile>, pairIntIntHash> myMap;
+	std::list<std::shared_ptr<Dot>> myDots;
+	std::list<std::shared_ptr<BigDot>> myBigDots;
 	std::list<Cherry*> myCherry;
 
-	Sprite* boardBackground;
+	Sprite::Ptr boardBackground;
 
 	bool myDebugDraw = false;
 	Pacman* myGame;

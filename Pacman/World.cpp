@@ -20,13 +20,13 @@ World::~World(void)
 {
 }
 
-void World::Init(Drawer* gameDrawer)
+void World::Init(Drawer::Ptr gameDrawer)
 {
 	boardBackground = Sprite::Create({"playfield.png"}, gameDrawer, 1024, 768);
 	InitMap(gameDrawer);
 }
 
-bool World::InitMap(Drawer* gameDrawer)
+bool World::InitMap(Drawer::Ptr gameDrawer)
 {
 	std::string line;
 	std::ifstream myfile ("map.txt");
@@ -40,20 +40,20 @@ bool World::InitMap(Drawer* gameDrawer)
 			{
 				if (line[i] == '\r' || line[i] == '\n')
 					continue;
-				PathmapTile* tile = new PathmapTile(i, lineIndex, (line[i] == 'x'));
+				PathmapTile::Ptr tile = std::make_shared<PathmapTile>(i, lineIndex, (line[i] == 'x'));
 				myMap[std::pair<int,int>{i, lineIndex}] = tile;
 
 				if (line[i] == '.')
 				{
 					auto newSprite = Sprite::Create({"Small_Dot_32.png"}, gameDrawer, 32, 32);
-					auto dot = new Dot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
+					auto dot = std::make_shared<Dot>(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
 					myDots.push_back(dot);
 					tile->myDot = dot;
 				}
 				if (line[i] == 'o')
 				{
 					auto newSprite = Sprite::Create({"Big_Dot_32.png"}, gameDrawer, 32, 32);
-					auto dot = new BigDot(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
+					auto dot = std::make_shared<BigDot>(Vector2f(i*World::TILE_SIZE, lineIndex*World::TILE_SIZE), newSprite);
 					myBigDots.push_back(dot);
 					tile->myBigDot = dot;
 				}
@@ -67,16 +67,16 @@ bool World::InitMap(Drawer* gameDrawer)
 	return true;
 }
 
-void World::Draw(Drawer* aDrawer)
+void World::Draw(Drawer::Ptr aDrawer)
 {
 	boardBackground->Draw(aDrawer, 0, 0);
 
-	for(Dot* dot : myDots)
+	for(Dot::Ptr dot : myDots)
 	{
 		dot->Draw(aDrawer);
 	}
 
-	for(BigDot* dot : myBigDots)
+	for(BigDot::Ptr dot : myBigDots)
 	{
 		dot->Draw(aDrawer);
 	}
@@ -89,23 +89,23 @@ void World::Draw(Drawer* aDrawer)
 			
 			if (tile->myIsBlockingFlag) color = {0, 0, 0, 255};
 			
-			SDL_SetRenderDrawColor(aDrawer->GetRenderer(), color.r, color.g, color.b, color.a);
+			SDL_SetRenderDrawColor(aDrawer->GetRenderer().get(), color.r, color.g, color.b, color.a);
 			SDL_Rect rect {
 				World::GAME_FIELD_X + tile->myX*World::TILE_SIZE+1,
 				World::GAME_FIELD_Y + tile->myY*World::TILE_SIZE+1,
 				World::TILE_SIZE-1,
 				World::TILE_SIZE-1};
-			SDL_RenderDrawRect(aDrawer->GetRenderer(), &rect);
+			SDL_RenderDrawRect(aDrawer->GetRenderer().get(), &rect);
 
 			if (Ghost::IsHomeTile(Vector2f(tile->myX, tile->myY)))
 			{
-				SDL_SetRenderDrawColor(aDrawer->GetRenderer(), 0, 0, 255, 255);
+				SDL_SetRenderDrawColor(aDrawer->GetRenderer().get(), 0, 0, 255, 255);
 				SDL_Rect rect {
 					World::GAME_FIELD_X + tile->myX*World::TILE_SIZE,
 					World::GAME_FIELD_Y + tile->myY*World::TILE_SIZE,
 					World::TILE_SIZE,
 					World::TILE_SIZE};
-				SDL_RenderDrawRect(aDrawer->GetRenderer(), &rect);
+				SDL_RenderDrawRect(aDrawer->GetRenderer().get(), &rect);
 			}
 		}
 
@@ -124,13 +124,13 @@ void World::Draw(Drawer* aDrawer)
 				default: break;
 				}
 			}
-			SDL_SetRenderDrawColor(aDrawer->GetRenderer(), ghostColor.r, ghostColor.g, ghostColor.b, ghostColor.a);
+			SDL_SetRenderDrawColor(aDrawer->GetRenderer().get(), ghostColor.r, ghostColor.g, ghostColor.b, ghostColor.a);
 			SDL_Rect targetRect {
 				int(World::GAME_FIELD_X + targetTile.myX*World::TILE_SIZE+2),
 				int(World::GAME_FIELD_Y + targetTile.myY*World::TILE_SIZE+2),
 				World::TILE_SIZE-2,
 				World::TILE_SIZE-2};
-			SDL_RenderDrawRect(aDrawer->GetRenderer(), &targetRect);
+			SDL_RenderDrawRect(aDrawer->GetRenderer().get(), &targetRect);
 		}
 	}
 }
@@ -165,7 +165,7 @@ bool World::TryEatDotAt(int x, int y)
 	if (eaten)
 	{
 		Vector2f tilePos{x*World::TILE_SIZE, y*World::TILE_SIZE};
-		myDots.remove_if([=](Dot* dot) { return dot->GetPosition() == tilePos; });
+		myDots.remove_if([=](Dot::Ptr dot) { return dot->GetPosition() == tilePos; });
 		tile->myDot = nullptr;
 	}
 	return eaten;
@@ -182,7 +182,7 @@ bool World::TryEatBigDotAt(int x, int y)
 	if (eaten)
 	{
 		Vector2f tilePos{x*World::TILE_SIZE, y*World::TILE_SIZE};
-		myBigDots.remove_if([=](BigDot* dot) { return dot->GetPosition() == tilePos; });
+		myBigDots.remove_if([=](BigDot::Ptr dot) { return dot->GetPosition() == tilePos; });
 		tile->myBigDot = nullptr;
 	}
 	return eaten;
@@ -193,7 +193,7 @@ bool World::TryEatCherryAt(int x, int y)
 	return false;
 }
 
-PathmapTile* World::GetTile(int aFromX, int aFromY)
+PathmapTile::Ptr World::GetTile(int aFromX, int aFromY)
 {
 	auto pos = std::make_pair(aFromX, aFromY);
 	if (myMap.find(pos) != myMap.end())

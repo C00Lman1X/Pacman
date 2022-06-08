@@ -2,8 +2,9 @@
 #include "World.h"
 #include "PathmapTile.h"
 #include "Ghost.h"
+#include "Drawer.h"
 
-Avatar::Avatar(const Vector2f& aPosition, World* world, Drawer* drawer)
+Avatar::Avatar(const Vector2f& aPosition, World::Ptr world, Drawer::Ptr drawer)
 	: MovableGameEntity(aPosition, nullptr)
 	, myWorld(world)
 {
@@ -32,7 +33,7 @@ void Avatar::Update(float aTime)
 
 bool Avatar::TryTile(int x, int y)
 {
-	PathmapTile* desiredTile = myWorld->GetTile(x, y);
+	PathmapTile::Ptr desiredTile = myWorld->GetTile(x, y);
 	if (desiredTile
 		&& !desiredTile->myIsBlockingFlag
 		&& !Ghost::IsHomeTile({desiredTile->myX, desiredTile->myY}))
