@@ -4,36 +4,35 @@
 MovableGameEntity::MovableGameEntity(const Vector2f& aPosition, Sprite* entitySprite)
 : GameEntity(aPosition, entitySprite)
 {
-	Respawn(aPosition);
+	Vector2f tile = aPosition;
+	tile /= World::TILE_SIZE;
+	Respawn(tile);
 }
 
 MovableGameEntity::~MovableGameEntity(void)
 {
 }
 
-bool MovableGameEntity::IsAtDestination()
+bool MovableGameEntity::IsAtNextTile()
 {
-	if (myCurrentTileX == myNextTileX && myCurrentTileY == myNextTileY)
+	if (myCurrentTile == myNextTile)
 	{
-
-
 		return true;
 	}
 
 	return false;
 }
 
-void MovableGameEntity::SetNextTile(int anX, int anY)
+void MovableGameEntity::SetNextTile(const Vector2f& tile)
 {
-	myNextTileX = anX;
-	myNextTileY = anY;
+	myNextTile = tile;
 }
 
-void MovableGameEntity::Respawn(const Vector2f& aPosition)
+void MovableGameEntity::Respawn(const Vector2f& aTile)
 {
-	SetPosition(aPosition);
-	myCurrentTileX = myNextTileX =  myPosition.myX / World::TILE_SIZE;
-	myCurrentTileY = myNextTileY =  myPosition.myY / World::TILE_SIZE;
+	myCurrentTile = myNextTile = aTile;
+
+	SetPosition(Vector2f{myCurrentTile * World::TILE_SIZE});
 }
 
 void MovableGameEntity::Move()

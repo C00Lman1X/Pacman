@@ -13,12 +13,6 @@ GameEntity::~GameEntity(void)
 {
 }
 
-bool GameEntity::Intersect(GameEntity* aGameEntity)
-{
-
-	return false;	
-}
-
 void GameEntity::Draw(Drawer* aDrawer)
 {
 	sprite->Draw(aDrawer, (int)myPosition.myX + World::GAME_FIELD_X, (int)myPosition.myY + World::GAME_FIELD_Y);

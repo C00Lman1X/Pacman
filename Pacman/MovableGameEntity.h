@@ -19,23 +19,19 @@ public:
 	MovableGameEntity(const Vector2f& aPosition, Sprite* entitySprite);
 	~MovableGameEntity(void);
 
-	void Respawn(const Vector2f& aPosition);
+	void Respawn(const Vector2f& aTile);
 
-	void SetNextTile(int anX, int anY);
-	int GetCurrentTileX() const { return myCurrentTileX; }
-	int GetCurrentTileY() const { return myCurrentTileY; }
+	void SetNextTile(const Vector2f& tile);
+	Vector2f GetCurrentTile() const { return myCurrentTile; }
+	Vector2f GetNextTile() const { return myNextTile; }
 
-	bool IsAtDestination();
+	bool IsAtNextTile();
 
 	void Move();
 
 protected:
-
-	int myCurrentTileX;
-	int myCurrentTileY;
-
-	int myNextTileX;
-	int myNextTileY;
+	Vector2f myCurrentTile;
+	Vector2f myNextTile;
 };
 
 #endif // MOVABLEGAMEENTITY_H

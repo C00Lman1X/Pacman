@@ -6,8 +6,7 @@ Avatar::Avatar(const Vector2f& aPosition, World* world, Drawer* drawer)
 	: MovableGameEntity(aPosition, nullptr)
 	, myWorld(world)
 {
-	myNextTileX = myCurrentTileX - 1;
-	myNextTileY = myCurrentTileY;
+	myNextTile = {myCurrentTile.myX - 1.f, myCurrentTile.myY}; 
 
 	mySprites[MovementDirection::Up] = Sprite::Create({"open_up_32.png", "closed_up_32.png"}, drawer, 32, 32);
 	mySprites[MovementDirection::Down] = Sprite::Create({"open_down_32.png", "closed_down_32.png"}, drawer, 32, 32);
@@ -35,21 +34,26 @@ bool Avatar::TryTile(int x, int y)
 	PathmapTile* desiredTile = myWorld->GetTile(x, y);
 	if (desiredTile && !desiredTile->myIsBlockingFlag)
 	{
-		myNextTileX = x;
-		myNextTileY = y;
+		myNextTile = {(float)x, (float)y};
 		return true;
 	}
 	return false;
 }
 
+bool Avatar::TryTile(Vector2f tile)
+{
+	return TryTile(tile.myX, tile.myY);
+}
+
 void Avatar::MyMove(float dt)
 {
-	if (myNextTileX == myCurrentTileX && myNextTileY == myCurrentTileY)
+	// if we're not moving anywhere
+	if (IsAtNextTile())
 	{
 		if (myNextMovement == Vector2f{0.f,0.f})
 			return;
 		
-		if (TryTile(myCurrentTileX + myNextMovement.myX, myCurrentTileY+myNextMovement.myY))
+		if (TryTile(myCurrentTile + myNextMovement))
 		{
 			myNextMovement = Vector2f{0.f, 0.f};
 		}
@@ -59,18 +63,16 @@ void Avatar::MyMove(float dt)
 		}
 	}
 
-	int gridDirectionX = myNextTileX - myCurrentTileX;
-	int gridDirectionY = myNextTileY - myCurrentTileY;
-	if ((myNextMovement.myX != 0 && myNextMovement.myX == -gridDirectionX)
-		|| (myNextMovement.myY != 0 && myNextMovement.myY == -gridDirectionY))
+	Vector2f gridDirection = myNextTile - myCurrentTile;
+	if ((myNextMovement.myX != 0 && myNextMovement.myX == -gridDirection.myX)
+		|| (myNextMovement.myY != 0 && myNextMovement.myY == -gridDirection.myY))
 	{
 		// turning backwards
-		std::swap(myCurrentTileX, myNextTileX);
-		std::swap(myCurrentTileY, myNextTileY);
+		std::swap(myCurrentTile, myNextTile);
 		myNextMovement = Vector2f{0.f, 0.f};
 	}
 
-	Vector2f nextTilePos(myNextTileX * World::TILE_SIZE, myNextTileY * World::TILE_SIZE);
+	Vector2f nextTilePos{myNextTile * World::TILE_SIZE};
 	Vector2f direction = nextTilePos - myPosition;
 
 	float distanceToMove = dt * mySpeed;
@@ -80,49 +82,41 @@ void Avatar::MyMove(float dt)
 	{
 		//steped on next tile
 		myPosition = nextTilePos;
-		int previousDirectionX = myNextTileX - myCurrentTileX;
-		int previousDirectionY = myNextTileY - myCurrentTileY;
-		myCurrentTileX = myNextTileX;
-		myCurrentTileY = myNextTileY;
+		Vector2f previousDirection = myNextTile - myCurrentTile;
+		myCurrentTile = myNextTile;
 		distanceToMove -= distanceToNextTile;
 
 		if (myNextMovement != Vector2f{0.f,0.f})
 		{
-			int desiredTileX = myCurrentTileX + myNextMovement.myX;
-			int desiredTileY = myCurrentTileY + myNextMovement.myY;
+			Vector2f desiredTile = myCurrentTile + myNextMovement;
 
 			//trying to turn
-			if (TryTile(desiredTileX, desiredTileY))
+			if (TryTile(desiredTile))
 			{
 				myNextMovement = Vector2f{0, 0};
 				return;
 			}
 		}
-
-		int desiredTileX = myCurrentTileX + previousDirectionX;
-		int desiredTileY = myCurrentTileY + previousDirectionY;
-		if (!TryTile(desiredTileX, desiredTileY))
+		
+		Vector2f desiredTile = myCurrentTile + previousDirection;
+		if (!TryTile(desiredTile))
 		{
-			myNextTileX = myCurrentTileX;
-			myNextTileY = myCurrentTileY;
+			myNextTile = myCurrentTile;
 		}
+	}
 
-	}
-	else
-	{
-		direction.Normalize();
-		myPosition += direction * distanceToMove;
-	}
+	direction.Normalize();
+	myPosition += direction * distanceToMove;
 }
 
 Avatar::MovementDirection Avatar::GetMovementDirection()
 {
-	if (myNextTileX > myCurrentTileX)
+	if (myNextTile.myX > myCurrentTile.myX)
 		return MovementDirection::Right;
-	else if (myNextTileX < myCurrentTileX)
+	else if (myNextTile.myX < myCurrentTile.myX)
 		return MovementDirection::Left;
-	else if (myNextTileY < myCurrentTileY)
+	else if (myNextTile.myY < myCurrentTile.myY)
 		return MovementDirection::Up;
-	else // (myNextTileY >= myCurrentTileY)
+	else // (myNextTile.myY >= myCurrentTile.myY)
 		return MovementDirection::Down;
 }

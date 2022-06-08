@@ -12,6 +12,7 @@ class PathmapTile;
 class Dot;
 class BigDot;
 class Cherry;
+class Pacman;
 
 struct pairIntIntHash
 {
@@ -29,13 +30,14 @@ public:
 	static constexpr int GAME_FIELD_Y = 60;
 	static constexpr int TILE_SIZE = 22;
 
-	World(void);
+	World(Pacman* game);
 	~World(void);
 
 	void Init(Drawer* gameDrawer);
 
 	void Draw(Drawer* aDrawer);
 	bool TileIsValid(int anX, int anY);
+	bool TileIsValid(Vector2f tile);
 
 	bool HasIntersectedDot(const Vector2f& aPosition);
 	bool HasIntersectedBigDot(const Vector2f& aPosition);
@@ -48,6 +50,8 @@ public:
 
 	PathmapTile* GetTileFromCoords(float x, float y);
 	PathmapTile* GetTile(int aFromX, int aFromY);
+
+	void SwitchDebugDraw() { myDebugDraw = !myDebugDraw; }
 
 private:
 
@@ -65,6 +69,9 @@ private:
 	std::list<Cherry*> myCherry;
 
 	Sprite* boardBackground;
+
+	bool myDebugDraw = false;
+	Pacman* myGame;
 };
 
 #endif // WORLD_H

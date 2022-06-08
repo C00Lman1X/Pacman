@@ -20,6 +20,8 @@ public:
 	bool Update(float aTime);
 	bool Draw();
 
+	const std::list<Ghost*> GetGhosts() const { return ghosts; }
+
 private:
 	Pacman(Drawer* aDrawer);
 	bool Init();
@@ -31,9 +33,6 @@ private:
 	void SetFPS(int fps);
 
 	Drawer* myDrawer;
-
-	float myTimeToNextUpdate;
-	float myGhostGhostCounter;
 
 	int myLives;
 	int myScore;

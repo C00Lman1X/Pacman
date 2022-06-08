@@ -6,6 +6,7 @@
 class Vector2f
 {
 public:
+
 	Vector2f()
 	{
 		myX = 0.f;

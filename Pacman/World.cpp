@@ -8,8 +8,11 @@
 #include "Dot.h"
 #include "BigDot.h"
 #include "Drawer.h"
+#include "Pacman.h"
+#include "Ghost.h"
 
-World::World(void)
+World::World(Pacman* game)
+	: myGame(game)
 {
 }
 
@@ -136,37 +139,53 @@ void World::Draw(Drawer* aDrawer)
 		dot->Draw(aDrawer);
 	}
 
-	return;
-	for(auto& [tilePos, tile] : myMap)
+	if (myDebugDraw)
 	{
-		SDL_Color color{255, 255, 255, 255};
-		if (tile->myIsBlockingFlag) color.r = 0;
-		if (tile->myIsVisitedFlag) color.g = 0;
-		// none - white
-		// IsVisited - purple
-		// IsBlocking - cyan
-		// IsBlocking IsVisited - green
-		SDL_SetRenderDrawColor(aDrawer->GetRenderer(), color.r, color.g, color.b, color.a);
-		SDL_Rect rect {
-			World::GAME_FIELD_X + tile->myX*World::TILE_SIZE+1,
-			World::GAME_FIELD_Y + tile->myY*World::TILE_SIZE+1,
-			World::TILE_SIZE-1,
-			World::TILE_SIZE-1};
-		SDL_RenderDrawRect(aDrawer->GetRenderer(), &rect);
+		for(auto& [tilePos, tile] : myMap)
+		{
+			SDL_Color color{255, 255, 255, 255};
+			
+			if (tile->myIsBlockingFlag) color = {0, 0, 0, 255};
+
+			for(auto& ghost : myGame->GetGhosts())
+			{
+				const Vector2f& targetTile = ghost->GetTargetTile();
+				if (targetTile == Vector2f{float(tile->myX), float(tile->myY)})
+				{
+					switch (ghost->GetType())
+					{
+					case Ghost::Red: color = {255, 0, 0, 255}; break;
+					case Ghost::Pink: color = {255, 0, 255, 255}; break;
+					case Ghost::Cyan: color = {0, 255, 255, 255}; break;
+					case Ghost::Orange: color = {255, 165, 0, 255}; break;
+					default: break;
+					}
+				}
+			}
+
+			SDL_SetRenderDrawColor(aDrawer->GetRenderer(), color.r, color.g, color.b, color.a);
+			SDL_Rect rect {
+				World::GAME_FIELD_X + tile->myX*World::TILE_SIZE+1,
+				World::GAME_FIELD_Y + tile->myY*World::TILE_SIZE+1,
+				World::TILE_SIZE-1,
+				World::TILE_SIZE-1};
+			SDL_RenderDrawRect(aDrawer->GetRenderer(), &rect);
+		}
 	}
 }
 
 bool World::TileIsValid(int anX, int anY)
 {
-	return !myMap.at(std::pair{anX, anY})->myIsBlockingFlag;
-	
-	for(auto& [tilePos, tile] : myMap)
-	{
-		if (anX == tile->myX && anY == tile->myY && !tile->myIsBlockingFlag)
-			return true;
-	}
-
+	auto tileCoord = std::make_pair(anX, anY);
+	auto tileIt = myMap.find(tileCoord);
+	if (tileIt != myMap.end())
+		return !myMap[tileCoord]->myIsBlockingFlag;
 	return false;
+}
+
+bool World::TileIsValid(Vector2f tile)
+{
+	return TileIsValid(tile.myX, tile.myY);
 }
 
 int World::GetDotCount()
@@ -231,11 +250,6 @@ PathmapTile* World::GetTile(int aFromX, int aFromY)
 		return myMap[pos];
 	
 	return nullptr;
-}
-
-PathmapTile* World::GetTileFromCoords(float x, float y)
-{
-
 }
 
 bool World::ListDoesNotContain(PathmapTile* aFromTile, std::list<PathmapTile*>& aList)

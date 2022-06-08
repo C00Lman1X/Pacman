@@ -26,44 +26,16 @@ Pacman* Pacman::Create(Drawer* aDrawer)
 
 Pacman::Pacman(Drawer* aDrawer)
 : myDrawer(aDrawer)
-, myTimeToNextUpdate(0.f)
 , myScore(0)
 , myFps(0)
 , myLives(3)
-, myGhostGhostCounter(0.f)
 {
-	Sprite* newSprite = NULL;
-	std::list<std::string> assetPaths;
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Red, myDrawer));
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Cyan, myDrawer, ghosts.back()));
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Pink, myDrawer));
+	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Orange, myDrawer));
 
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Chase));
-
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Wander));
-
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Intercept));
-
-	assetPaths.clear();
-	assetPaths.push_back("ghost_32_cyan.png");
-	assetPaths.push_back("Ghost_Vulnerable_32.png");
-	assetPaths.push_back("Ghost_Dead_32.png");
-	newSprite = Sprite::Create(assetPaths, myDrawer, 32, 32);
-	ghosts.push_back(new Ghost(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), newSprite, Ghost::GhostBehavior::Fear));
-
-	myWorld = new World();
+	myWorld = new World(this);
 
 	myAvatar = new Avatar(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), myWorld, myDrawer);
 
@@ -111,35 +83,31 @@ bool Pacman::Update(float aTime)
 
 	}
 
-	myGhostGhostCounter -= aTime;
-
 	if (myWorld->HasIntersectedBigDot(myAvatar->GetPosition()))
 	{
 		UpdateScore(20);
 
-		myGhostGhostCounter = 20.f;
-		for (ghostIterator = ghosts.begin(); ghostIterator != ghosts.end(); ghostIterator++)
-			(*ghostIterator)->myIsClaimableFlag = true;
+		for (auto& ghost : ghosts)
+			ghost->SetState(Ghost::GhostBehavior::Fear);
 	}
 
-	if (myGhostGhostCounter <= 0)
+	for (auto& ghost : ghosts)
 	{
-		for (ghostIterator = ghosts.begin(); ghostIterator != ghosts.end(); ghostIterator++)
-			(*ghostIterator)->myIsClaimableFlag = false;
-	}
-
-	for (ghostIterator = ghosts.begin(); ghostIterator != ghosts.end(); ghostIterator++)
-	{
-		if (((*ghostIterator)->GetPosition() - myAvatar->GetPosition()).Length() < 16.f)
+		if (ghost->GetCurrentTile() == myAvatar->GetCurrentTile())
 		{
-			if (myGhostGhostCounter <= 0.f)
+			if (ghost->IsClaimable())
+			{
+				UpdateScore(50);
+				ghost->SetState(Ghost::GhostBehavior::Dead);
+			}
+			else if (!ghost->IsDead())
 			{
 				UpdateLives(myLives -1);
 
 				if (myLives > 0)
 				{
-					myAvatar->Respawn(Vector2f(13 * World::TILE_SIZE, 22 * World::TILE_SIZE));
-					(*ghostIterator)->Respawn(Vector2f(13 * World::TILE_SIZE, 13 * World::TILE_SIZE));
+					myAvatar->Respawn(Vector2f(13, 22));
+					ghost->Respawn(Vector2f(13, 13));
 					break;
 				}
 				else
@@ -148,17 +116,11 @@ bool Pacman::Update(float aTime)
 					break;
 				}
 			}
-			else if ((*ghostIterator)->myIsClaimableFlag && !(*ghostIterator)->myIsDeadFlag)
-			{
-				UpdateScore(50);
-				(*ghostIterator)->myIsDeadFlag = true;
-				(*ghostIterator)->Die(myWorld);
-			}
 		}
 	}
 	
-	if (aTime > 0)
-		SetFPS((int) (1 / aTime));
+	if (aTime > 0.f)
+		SetFPS((int) (1.f / aTime));
 
 	return true;
 }
@@ -202,6 +164,9 @@ bool Pacman::UpdateInput()
 		myAvatar->SetNextMovement(Vector2f(1.f, 0.f));
 	else if (keystate[SDL_SCANCODE_LEFT])
 		myAvatar->SetNextMovement(Vector2f(-1.f, 0.f));
+	
+	if (keystate[SDL_SCANCODE_D])
+		myWorld->SwitchDebugDraw();
 
 	if (keystate[SDL_SCANCODE_ESCAPE])
 		return false;
