@@ -2,6 +2,7 @@
 #define DRAWER_H
 
 #include <map>
+#include <memory>
 #include <string>
 #include "SDL_ttf.h"
 
