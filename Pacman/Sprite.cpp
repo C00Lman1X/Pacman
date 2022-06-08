@@ -49,3 +49,11 @@ void Sprite::Update(float dt)
 		currentFrameIdx = (currentFrameIdx + 1) % texturesVec.size();
 	}
 }
+
+void Sprite::SetFrame(int x, int y, int w, int h)
+{
+	frame.x = x;
+	frame.y = y;
+	frame.w = w;
+	frame.h = h;
+}

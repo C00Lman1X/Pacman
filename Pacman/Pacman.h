@@ -24,6 +24,8 @@ public:
 
 	const std::list<std::shared_ptr<Ghost>> GetGhosts() const { return ghosts; }
 
+	const std::shared_ptr<Avatar> GetAvatar() const { return myAvatar; }
+
 private:
 	Pacman(std::shared_ptr<Drawer> aDrawer);
 	bool Init();

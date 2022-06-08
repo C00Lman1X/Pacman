@@ -10,6 +10,7 @@
 #include "Drawer.h"
 #include "Pacman.h"
 #include "Ghost.h"
+#include "Avatar.h"
 
 World::World(Pacman* game)
 	: myGame(game)
@@ -57,6 +58,21 @@ bool World::InitMap(Drawer::Ptr gameDrawer)
 					myBigDots.push_back(dot);
 					tile->myBigDot = dot;
 				}
+				if (line[i] == 'a')
+				{
+					if (i == 0)
+					{
+						PathmapTile::Ptr tile = std::make_shared<PathmapTile>(-1, lineIndex, false);
+						myMap[std::pair<int,int>{-1, lineIndex}] = tile;
+						tile->linkedTile = std::make_pair(26, lineIndex);
+					}
+					else if (i == 25)
+					{
+						PathmapTile::Ptr tile = std::make_shared<PathmapTile>(26, lineIndex, false);
+						myMap[std::pair<int,int>{26, lineIndex}] = tile;
+						tile->linkedTile = std::make_pair(-1, lineIndex);
+					}
+				}
 			}
 
 			lineIndex++;
@@ -88,6 +104,9 @@ void World::Draw(Drawer::Ptr aDrawer)
 			SDL_Color color{255, 255, 255, 255};
 			
 			if (tile->myIsBlockingFlag) color = {0, 0, 0, 255};
+			if (tile->myX == myGame->GetAvatar()->GetCurrentTile().myX
+				&& tile->myY == myGame->GetAvatar()->GetCurrentTile().myY)
+				color = {255, 255, 0, 255};
 			
 			SDL_SetRenderDrawColor(aDrawer->GetRenderer().get(), color.r, color.g, color.b, color.a);
 			SDL_Rect rect {
@@ -202,4 +221,11 @@ PathmapTile::Ptr World::GetTile(int aFromX, int aFromY)
 		return myMap[pos];
 	
 	return nullptr;
+}
+
+PathmapTile::Ptr World::GetTileFromCoords(float x, float y)
+{
+	int tileX = x/World::TILE_SIZE;
+	int tileY = y/World::TILE_SIZE;
+	return GetTile(tileX, tileY);
 }

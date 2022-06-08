@@ -83,8 +83,18 @@ void Ghost::Update(float aTime, World::Ptr aWorld, Avatar::Ptr avatar)
 
 	if (distanceToMove > direction.Length())
 	{
-		myPosition = destination;
 		myCurrentTile = myNextTile;
+		auto tile = aWorld->GetTile(myCurrentTile.myX, myCurrentTile.myY);
+		if (tile->linkedTile)
+		{
+			// TODO: hardcoded portals
+			myCurrentTile = {tile->linkedTile->first, tile->linkedTile->second};
+			if (tile->myX < 0)
+				SetNextTile(myCurrentTile + Vector2f{-1.f, 0.f});
+			else
+				SetNextTile(myCurrentTile + Vector2f{1.f, 0.f});
+		}
+		myPosition = myCurrentTile * World::TILE_SIZE;
 	}
 	else
 	{
@@ -101,15 +111,28 @@ void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 		myNextTile + Vector2f{-1.f, 0.f},
 		myNextTile + Vector2f{1.f, 0.f},
 	};
-	allowedTiles.remove_if([this, aWorld](const Vector2f& tile) {
-		if (tile == myCurrentTile)
-			return true; // cannot move back
-		if (IsHomeTile(myCurrentTile) && !CanLeaveHome(aWorld) && !IsHomeTile(tile))
-			return true; // cannot leave home if we are there and !CanLeaveHome()
-		if (!IsHomeTile(myCurrentTile) && !IsDead() && IsHomeTile(tile))
-			return true; // cannot enter home if we are not dead
-		return !aWorld->TileIsValid(tile);
-	});
+	auto nextTile = aWorld->GetTile(myNextTile.myX, myNextTile.myY);
+	if (nextTile->linkedTile)
+	{
+		// TODO: hardcoded portals
+		if (nextTile->myX < 0)
+			allowedTiles = {Vector2f{25.f, 13.f}};
+		else
+			allowedTiles = {Vector2f{0.f, 13.f}};
+	}
+	else
+	{
+		allowedTiles.remove_if([this, aWorld](const Vector2f& tile) {
+			if (tile == myCurrentTile)
+				return true; // cannot move back
+			if (IsHomeTile(myCurrentTile) && !CanLeaveHome(aWorld) && !IsHomeTile(tile))
+				return true; // cannot leave home if we are there and !CanLeaveHome()
+			if (!IsHomeTile(myCurrentTile) && !IsDead() && IsHomeTile(tile))
+				return true; // cannot enter home if we are not dead
+			
+			return !aWorld->TileIsValid(tile);
+		});
+	}
 
 	Vector2f targetTile;
 
@@ -265,8 +288,8 @@ bool Ghost::CanLeaveHome(std::shared_ptr<World> aWorld)
 	switch (myType)
 	{
 	case Ghost::Red: return true;
-	case Ghost::Pink: return aWorld->GetEatenDotsCount() > 10;
-	case Ghost::Cyan: return aWorld->GetEatenDotsCount() > 20;
-	case Ghost::Orange: return aWorld->GetEatenDotsCount() > 30;
+	case Ghost::Pink: return aWorld->GetEatenDotsCount() > 100;
+	case Ghost::Cyan: return aWorld->GetEatenDotsCount() > 200;
+	case Ghost::Orange: return aWorld->GetEatenDotsCount() > 300;
 	}
 }

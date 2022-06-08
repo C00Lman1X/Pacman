@@ -36,7 +36,7 @@ Pacman::Pacman(Drawer::Ptr aDrawer)
 
 	myWorld = std::make_shared<World>(this);
 
-	myAvatar = std::make_shared<Avatar>(Vector2f(13*World::TILE_SIZE,22*World::TILE_SIZE), myWorld, myDrawer);
+	myAvatar = std::make_shared<Avatar>(Vector2f(5*World::TILE_SIZE,13*World::TILE_SIZE), myWorld, myDrawer);
 
 	gameplayMessage = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
 	scoreDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 0,255,0,255 }, 24, myDrawer);

@@ -23,6 +23,8 @@ public:
 	Vector2f GetMovementDirectionVec();
 	Vector2f GetPreviousMovementDirectionVec();
 
+	void Draw(std::shared_ptr<Drawer> drawer) override;
+
 private:
 	bool TryTile(int x, int y);
 	bool TryTile(Vector2f tile);

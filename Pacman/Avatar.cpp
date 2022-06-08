@@ -85,9 +85,17 @@ void Avatar::MyMove(float dt)
 	if (distanceToMove > distanceToNextTile)
 	{
 		//steped on next tile
-		myPosition = nextTilePos;
 		myPreviousDirection = GetMovementDirection();
 		myCurrentTile = myNextTile;
+
+		// check for portal
+		auto tile = myWorld->GetTile(myCurrentTile.myX, myCurrentTile.myY);
+		if (tile && tile->linkedTile)
+		{
+			myCurrentTile = {tile->linkedTile->first, tile->linkedTile->second};
+		}
+
+		myPosition = myCurrentTile * World::TILE_SIZE;
 		distanceToMove -= distanceToNextTile;
 
 		if (myNextMovement != Vector2f{0.f,0.f})
@@ -111,6 +119,31 @@ void Avatar::MyMove(float dt)
 
 	direction.Normalize();
 	myPosition += direction * distanceToMove;
+}
+
+void Avatar::Draw(std::shared_ptr<Drawer> drawer)
+{
+	SDL_Rect frame{0, 0, 32, 32};
+	/*
+	auto nextTile = myWorld->GetTile(myNextTile.myX, myNextTile.myY);
+	if (nextTile->linkedTile)
+	{
+		float percentageVisible = std::abs(myPosition.myX - nextTile->myX * World::TILE_SIZE) / World::TILE_SIZE;
+		if (nextTile->myX < 0)
+		{
+			int leftBorder = 0;
+			frame.x = leftBorder - (int)myPosition.myX;
+			frame.w = 32 - frame.x;
+		}
+		else
+		{
+			frame.w = 32.f * percentageVisible;
+		}
+		printf("Percentage visible (%.2f) frame (%d,%d,%d,%d)\n", percentageVisible, frame.x, frame.y, frame.w, frame.h);
+	}
+	sprite->SetFrame(frame.x, frame.y, frame.w, frame.h);
+	*/
+	sprite->Draw(drawer, (int)myPosition.myX + World::GAME_FIELD_X + frame.x, (int)myPosition.myY + World::GAME_FIELD_Y);
 }
 
 Avatar::MovementDirection Avatar::GetMovementDirection()

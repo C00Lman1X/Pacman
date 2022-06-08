@@ -22,6 +22,8 @@ public:
 
 	void Update(float dt);
 
+	void SetFrame(int x, int y, int w, int h);
+
 private:
 	Sprite(std::vector<std::shared_ptr<SDL_Texture>> frameCollection, SDL_Rect sizeRect);
 	
