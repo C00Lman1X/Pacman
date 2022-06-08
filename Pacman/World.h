@@ -39,14 +39,12 @@ public:
 	bool TileIsValid(int anX, int anY);
 	bool TileIsValid(Vector2f tile);
 
-	bool HasIntersectedDot(const Vector2f& aPosition);
-	bool HasIntersectedBigDot(const Vector2f& aPosition);
-	bool HasIntersectedCherry(const Vector2f& aPosition);
+	bool TryEatDotAt(int x, int y);
+	bool TryEatBigDotAt(int x, int y);
+	bool TryEatCherryAt(int x, int y);
 	int GetDotCount();
 
 	void Update();
-
-	void GetPath(int aFromX, int aFromY, int aToX, int aToY, std::list<PathmapTile*>& aList);
 
 	PathmapTile* GetTileFromCoords(float x, float y);
 	PathmapTile* GetTile(int aFromX, int aFromY);
@@ -54,11 +52,6 @@ public:
 	void SwitchDebugDraw() { myDebugDraw = !myDebugDraw; }
 
 private:
-
-	bool Pathfind(PathmapTile* aFromTile, PathmapTile* aToTile, std::list<PathmapTile*>& aList);
-	bool ListDoesNotContain(PathmapTile* aFromTile, std::list<PathmapTile*>& aList);
-
-
 	bool InitMap(Drawer* gameDrawer);
 
 	std::unordered_map<std::pair<int,int>, PathmapTile*, pairIntIntHash> myMap;

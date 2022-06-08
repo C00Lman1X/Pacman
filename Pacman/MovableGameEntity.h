@@ -22,8 +22,8 @@ public:
 	void Respawn(const Vector2f& aTile);
 
 	void SetNextTile(const Vector2f& tile);
-	Vector2f GetCurrentTile() const { return myCurrentTile; }
-	Vector2f GetNextTile() const { return myNextTile; }
+	const Vector2f& GetCurrentTile() const { return myCurrentTile; }
+	const Vector2f& GetNextTile() const { return myNextTile; }
 
 	bool IsAtNextTile();
 

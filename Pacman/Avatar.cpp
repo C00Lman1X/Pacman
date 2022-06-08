@@ -120,7 +120,7 @@ Avatar::MovementDirection Avatar::GetMovementDirection()
 		return MovementDirection::Left;
 	else if (myNextTile.myY < myCurrentTile.myY)
 		return MovementDirection::Up;
-	else if (myNextTile.myY >= myCurrentTile.myY)
+	else if (myNextTile.myY > myCurrentTile.myY)
 		return MovementDirection::Down;
 	else
 		return myPreviousDirection;

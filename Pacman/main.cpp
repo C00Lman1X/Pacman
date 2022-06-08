@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 	Pacman* pacman = Pacman::Create(drawer);
 
 	float lastFrame = (float) SDL_GetTicks() * 0.001f;
+	float targetFPS = 60.f;
 	SDL_Event event;
 	while (SDL_PollEvent(&event) >= 0)
 	{
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
 		lastFrame = currentFrame;		
 
 		SDL_RenderPresent(renderer);
-		SDL_Delay(1);
+		SDL_Delay(1000.f/targetFPS);
 	}
 
 	delete pacman;

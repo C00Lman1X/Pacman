@@ -75,7 +75,7 @@ bool Pacman::Update(float aTime)
 	for (Ghost* ghost : ghosts)
 		ghost->Update(aTime, myWorld, myAvatar);
 
-	if (myWorld->HasIntersectedDot(myAvatar->GetPosition()))
+	if (myWorld->TryEatDotAt(myAvatar->GetCurrentTile().myX, myAvatar->GetCurrentTile().myY))
 	{
 		UpdateScore(10);
 		if(CheckEndGameCondition())
@@ -83,7 +83,7 @@ bool Pacman::Update(float aTime)
 
 	}
 
-	if (myWorld->HasIntersectedBigDot(myAvatar->GetPosition()))
+	if (myWorld->TryEatBigDotAt(myAvatar->GetCurrentTile().myX, myAvatar->GetCurrentTile().myY))
 	{
 		UpdateScore(20);
 
@@ -184,8 +184,8 @@ bool Pacman::Draw()
 	std::list<Ghost*>::iterator ghostIterator;
 	myWorld->Draw(myDrawer);
 	myAvatar->Draw(myDrawer);
-	for (ghostIterator = ghosts.begin(); ghostIterator != ghosts.end(); ghostIterator++)
-		(*ghostIterator)->Draw(myDrawer);
+	for (Ghost* ghost : ghosts)
+		ghost->Draw(myDrawer);
 
 	scoreDisplay->Draw(myDrawer, 20, 50);
 	livesDisplay->Draw(myDrawer, 20, 80);
