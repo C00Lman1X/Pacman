@@ -85,7 +85,8 @@ bool Pacman::Update(float aTime)
 		UpdateScore(20);
 
 		for (auto& ghost : ghosts)
-			ghost->SetState(Ghost::GhostBehavior::Fear);
+			if (!ghost->IsDead())
+				ghost->SetState(Ghost::GhostBehavior::Fear);
 	}
 
 	for (auto& ghost : ghosts)

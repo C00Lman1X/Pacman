@@ -54,7 +54,7 @@ protected:
 	Vector2f BehaveDead();
 	Vector2f BehaveFear(const std::list<Vector2f>& allowedTiles);
 	Vector2f BehaveHome();
-	bool CanLeaveHome();
+	bool CanLeaveHome(std::shared_ptr<World> aWorld);
 
 	std::shared_ptr<Ghost> myRedGhost = nullptr; // for cyan ghost
 

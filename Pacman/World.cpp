@@ -167,6 +167,7 @@ bool World::TryEatDotAt(int x, int y)
 		Vector2f tilePos{x*World::TILE_SIZE, y*World::TILE_SIZE};
 		myDots.remove_if([=](Dot::Ptr dot) { return dot->GetPosition() == tilePos; });
 		tile->myDot = nullptr;
+		myEatenDots++;
 	}
 	return eaten;
 }
@@ -184,6 +185,7 @@ bool World::TryEatBigDotAt(int x, int y)
 		Vector2f tilePos{x*World::TILE_SIZE, y*World::TILE_SIZE};
 		myBigDots.remove_if([=](BigDot::Ptr dot) { return dot->GetPosition() == tilePos; });
 		tile->myBigDot = nullptr;
+		myEatenDots++;
 	}
 	return eaten;
 }

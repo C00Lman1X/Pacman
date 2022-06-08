@@ -45,6 +45,7 @@ public:
 	bool TryEatBigDotAt(int x, int y);
 	bool TryEatCherryAt(int x, int y);
 	int GetDotCount();
+	int GetEatenDotsCount() { return myEatenDots; }
 
 	void Update();
 
@@ -65,6 +66,7 @@ private:
 
 	bool myDebugDraw = false;
 	Pacman* myGame;
+	int myEatenDots = 0;
 };
 
 #endif // WORLD_H

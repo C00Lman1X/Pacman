@@ -103,21 +103,18 @@ void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 	};
 	allowedTiles.remove_if([this, aWorld](const Vector2f& tile) {
 		if (tile == myCurrentTile)
-			return true;
+			return true; // cannot move back
+		if (IsHomeTile(myCurrentTile) && !CanLeaveHome(aWorld) && !IsHomeTile(tile))
+			return true; // cannot leave home if we are there and !CanLeaveHome()
 		if (!IsHomeTile(myCurrentTile) && !IsDead() && IsHomeTile(tile))
-			return true;
+			return true; // cannot enter home if we are not dead
 		return !aWorld->TileIsValid(tile);
 	});
-
-	if (allowedTiles.empty())
-	{
-		printf("WHOOPS\n");
-	}
 
 	Vector2f targetTile;
 
 	if (IsHomeTile(myCurrentTile) && !IsDead())
-		targetTile = Vector2f{11.f, 10.f};
+		targetTile = Vector2f{12.f, 10.f};
 	else
 	{
 		switch (myBehavior)
@@ -261,4 +258,15 @@ bool Ghost::IsHomeTile(const Vector2f& tile)
 		if (tile.myY > 10 && tile.myY < 15)
 			return true;
 	return false;
+}
+
+bool Ghost::CanLeaveHome(std::shared_ptr<World> aWorld)
+{
+	switch (myType)
+	{
+	case Ghost::Red: return true;
+	case Ghost::Pink: return aWorld->GetEatenDotsCount() > 10;
+	case Ghost::Cyan: return aWorld->GetEatenDotsCount() > 20;
+	case Ghost::Orange: return aWorld->GetEatenDotsCount() > 30;
+	}
 }
