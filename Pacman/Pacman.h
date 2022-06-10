@@ -3,6 +3,7 @@
 
 #include "Vector2f.h"
 #include <list>
+#include <memory>
 
 struct SDL_Surface;
 class Drawer;

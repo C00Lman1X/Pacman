@@ -6,7 +6,7 @@
 #include "MovableGameEntity.h"
 
 class World;
-class PathmapTile;
+struct PathmapTile;
 class Avatar;
 
 class Ghost : public MovableGameEntity
