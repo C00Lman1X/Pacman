@@ -5,8 +5,8 @@
 #include "Avatar.h"
 #include <algorithm>
 
-Ghost::Ghost(const Vector2f& aPosition, GhostType type, Drawer::Ptr drawer, Ghost::Ptr redGhost/* = nullptr*/)
-	: MovableGameEntity{aPosition, nullptr}
+Ghost::Ghost(const TileCoord& aTile, GhostType type, Drawer::Ptr drawer, Ghost::Ptr redGhost/* = nullptr*/)
+	: MovableGameEntity{aTile, nullptr}
 	, myBehavior{GhostBehavior::Chase}
 	, myType{type}
 	, myDesiredMovement{0, -1}
@@ -57,7 +57,7 @@ void Ghost::Update(float aTime, World::Ptr aWorld, Avatar::Ptr avatar)
 	}
 
 	float speed = 60.f;
-	Vector2f nextTile = myCurrentTile + myDesiredMovement;
+	TileCoord nextTile = myCurrentTile + myDesiredMovement;
 
 	if (IsDead())
 		speed = 120.f;
@@ -67,7 +67,7 @@ void Ghost::Update(float aTime, World::Ptr aWorld, Avatar::Ptr avatar)
 		if (aWorld->TileIsValid(nextTile))
 		{
 			SetNextTile(nextTile);
-			if (IsDead() && nextTile == Vector2f{13.f, 13.f})
+			if (IsDead() && nextTile == TileCoord{13,13})
 			{
 				SetState(myPreviousBehavior);
 			}
@@ -84,15 +84,15 @@ void Ghost::Update(float aTime, World::Ptr aWorld, Avatar::Ptr avatar)
 	if (distanceToMove > direction.Length())
 	{
 		myCurrentTile = myNextTile;
-		auto tile = aWorld->GetTile(myCurrentTile.myX, myCurrentTile.myY);
+		auto tile = aWorld->GetTile(myCurrentTile);
 		if (tile->linkedTile)
 		{
 			// TODO: hardcoded portals
 			myCurrentTile = {tile->linkedTile->first, tile->linkedTile->second};
-			if (tile->myX < 0)
-				SetNextTile(myCurrentTile + Vector2f{-1.f, 0.f});
+			if (tile->coord.x < 0)
+				SetNextTile(myCurrentTile + TileCoord{-1, 0});
 			else
-				SetNextTile(myCurrentTile + Vector2f{1.f, 0.f});
+				SetNextTile(myCurrentTile + TileCoord{1, 0});
 		}
 		myPosition = myCurrentTile * World::TILE_SIZE;
 	}
@@ -105,24 +105,24 @@ void Ghost::Update(float aTime, World::Ptr aWorld, Avatar::Ptr avatar)
 
 void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 {
-	std::list<Vector2f> allowedTiles {
-		myNextTile + Vector2f{0.f, -1.f},
-		myNextTile + Vector2f{0.f, 1.f},
-		myNextTile + Vector2f{-1.f, 0.f},
-		myNextTile + Vector2f{1.f, 0.f},
+	std::list<TileCoord> allowedTiles {
+		myNextTile + TileCoord{0, -1},
+		myNextTile + TileCoord{0, 1},
+		myNextTile + TileCoord{-1, 0},
+		myNextTile + TileCoord{1, 0},
 	};
-	auto nextTile = aWorld->GetTile(myNextTile.myX, myNextTile.myY);
+	auto nextTile = aWorld->GetTile(myNextTile);
 	if (nextTile->linkedTile)
 	{
 		// TODO: hardcoded portals
-		if (nextTile->myX < 0)
-			allowedTiles = {Vector2f{25.f, 13.f}};
+		if (nextTile->coord.x < 0)
+			allowedTiles = {TileCoord{25, 13}};
 		else
-			allowedTiles = {Vector2f{0.f, 13.f}};
+			allowedTiles = {TileCoord{0, 13}};
 	}
 	else
 	{
-		allowedTiles.remove_if([this, aWorld](const Vector2f& tile) {
+		allowedTiles.remove_if([this, aWorld](const TileCoord& tile) {
 			if (tile == myCurrentTile)
 				return true; // cannot move back
 			if (IsHomeTile(myCurrentTile) && !CanLeaveHome(aWorld) && !IsHomeTile(tile))
@@ -134,10 +134,10 @@ void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 		});
 	}
 
-	Vector2f targetTile;
+	TileCoord targetTile;
 
 	if (IsHomeTile(myCurrentTile) && !IsDead())
-		targetTile = Vector2f{12.f, 10.f};
+		targetTile = TileCoord{12, 10};
 	else
 	{
 		switch (myBehavior)
@@ -151,33 +151,33 @@ void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 	}
 
 	auto desiredTileIt = std::min_element(allowedTiles.begin(), allowedTiles.end(),
-		[targetTile](const Vector2f& tile1, const Vector2f& tile2){
-			float distance1 = (targetTile - tile1).Length();
-			float distance2 = (targetTile - tile2).Length();
-			return distance1 < distance2;
+		[targetTile](const TileCoord& tile1, const TileCoord& tile2){
+			Vector2f vec1{targetTile - tile1};
+			Vector2f vec2{targetTile - tile2};
+			return vec1.Length() < vec2.Length();
 		});
 	
 	myDesiredMovement = *desiredTileIt - myNextTile;
 	myTargetTile = targetTile;
 }
 
-Vector2f Ghost::BehaveScatter()
+TileCoord Ghost::BehaveScatter()
 {
-	Vector2f targetTile;
+	TileCoord targetTile;
 	switch(myType)
 		{
-		case GhostType::Red: targetTile = Vector2f{27.f, -1.f}; break;
-		case GhostType::Pink: targetTile = Vector2f{0.f, -1.f}; break;
-		case GhostType::Cyan: targetTile = Vector2f{27.f, 30.f}; break;
-		case GhostType::Orange: targetTile = Vector2f{0.f, 30.f}; break;
+		case GhostType::Red: targetTile = TileCoord{27, -1}; break;
+		case GhostType::Pink: targetTile = TileCoord{0, -1}; break;
+		case GhostType::Cyan: targetTile = TileCoord{27, 30}; break;
+		case GhostType::Orange: targetTile = TileCoord{0, 30}; break;
 		default: break;
 		}
 	return targetTile;
 }
 
-Vector2f Ghost::BehaveChase(Avatar::Ptr avatar)
+TileCoord Ghost::BehaveChase(Avatar::Ptr avatar)
 {
-	Vector2f targetTile;
+	TileCoord targetTile;
 	switch(myType)
 		{
 		case GhostType::Red:
@@ -187,25 +187,25 @@ Vector2f Ghost::BehaveChase(Avatar::Ptr avatar)
 		}
 		case GhostType::Pink:
 		{
-			Vector2f avatarDirectionVec = avatar->GetMovementDirectionVec();
-			targetTile = avatar->GetCurrentTile() + avatarDirectionVec * 4.f;
+			TileCoord avatarDirectionVec = avatar->GetMovementDirectionVec();
+			targetTile = avatar->GetCurrentTile() + avatarDirectionVec * 4;
 			break;
 		}
 		case GhostType::Cyan:
 		{
-			Vector2f redGhostTile = myRedGhost->GetCurrentTile();
+			TileCoord redGhostTile = myRedGhost->GetCurrentTile();
 			
-			Vector2f avatarDirectionVec = avatar->GetMovementDirectionVec();
+			TileCoord avatarDirectionVec = avatar->GetMovementDirectionVec();
 
-			Vector2f tileInFrontOfAvatar = avatar->GetCurrentTile() + avatarDirectionVec * 2.f;
-			Vector2f directionToRed = redGhostTile - tileInFrontOfAvatar;
-			targetTile = tileInFrontOfAvatar + (directionToRed * -1.f);
+			TileCoord tileInFrontOfAvatar = avatar->GetCurrentTile() + avatarDirectionVec * 2;
+			TileCoord directionToRed = redGhostTile - tileInFrontOfAvatar;
+			targetTile = tileInFrontOfAvatar + (directionToRed * -1);
 
 			break;
 		}
 		case GhostType::Orange:
 		{
-			float distanceToAvatar = (avatar->GetCurrentTile() - myCurrentTile).Length();
+			float distanceToAvatar = Vector2f{avatar->GetCurrentTile() - myCurrentTile}.Length();
 			if (distanceToAvatar <= 8.f)
 			{
 				targetTile = BehaveScatter();
@@ -220,12 +220,12 @@ Vector2f Ghost::BehaveChase(Avatar::Ptr avatar)
 	return targetTile;
 }
 
-Vector2f Ghost::BehaveDead()
+TileCoord Ghost::BehaveDead()
 {
-	return {13.f, 13.f};
+	return {13, 13};
 }
 
-Vector2f Ghost::BehaveFear(const std::list<Vector2f>& allowedTiles)
+TileCoord Ghost::BehaveFear(const std::list<TileCoord>& allowedTiles)
 {
 	int r = rand() % allowedTiles.size();
 	auto pickedTileIt = std::next(allowedTiles.begin(), r);
@@ -275,10 +275,10 @@ void Ghost::UpdateSprite()
 	}
 }
 
-bool Ghost::IsHomeTile(const Vector2f& tile)
+bool Ghost::IsHomeTile(const TileCoord& tile)
 {
-	if (tile.myX > 9 && tile.myX < 16)
-		if (tile.myY > 10 && tile.myY < 15)
+	if (tile.x > 9 && tile.x < 16)
+		if (tile.y > 10 && tile.y < 15)
 			return true;
 	return false;
 }

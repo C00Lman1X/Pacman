@@ -29,14 +29,14 @@ Pacman::Pacman(Drawer::Ptr aDrawer)
 , myFps(0)
 , myLives(3)
 {
-	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Red, myDrawer));
-	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Cyan, myDrawer, ghosts.back()));
-	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Pink, myDrawer));
-	ghosts.push_back(std::make_shared<Ghost>(Vector2f(13*World::TILE_SIZE,13*World::TILE_SIZE), Ghost::Orange, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Red, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Cyan, myDrawer, ghosts.back()));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Pink, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Orange, myDrawer));
 
 	myWorld = std::make_shared<World>(this);
 
-	myAvatar = std::make_shared<Avatar>(Vector2f(5*World::TILE_SIZE,13*World::TILE_SIZE), myWorld, myDrawer);
+	myAvatar = std::make_shared<Avatar>(TileCoord{13,22}, myWorld, myDrawer);
 
 	gameplayMessage = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 255,255,255,255 }, 24, myDrawer);
 	scoreDisplay = SpriteFont::Create("freefont-ttf/sfd/FreeMono.ttf", "", { 0,255,0,255 }, 24, myDrawer);
@@ -72,7 +72,7 @@ bool Pacman::Update(float aTime)
 	for (Ghost::Ptr ghost : ghosts)
 		ghost->Update(aTime, myWorld, myAvatar);
 
-	if (myWorld->TryEatDotAt(myAvatar->GetCurrentTile().myX, myAvatar->GetCurrentTile().myY))
+	if (myWorld->TryEatDotAt(myAvatar->GetCurrentTile()))
 	{
 		UpdateScore(10);
 		if(CheckEndGameCondition())
@@ -80,7 +80,7 @@ bool Pacman::Update(float aTime)
 
 	}
 
-	if (myWorld->TryEatBigDotAt(myAvatar->GetCurrentTile().myX, myAvatar->GetCurrentTile().myY))
+	if (myWorld->TryEatBigDotAt(myAvatar->GetCurrentTile()))
 	{
 		UpdateScore(20);
 
@@ -104,8 +104,8 @@ bool Pacman::Update(float aTime)
 
 				if (myLives > 0)
 				{
-					myAvatar->Respawn(Vector2f(13, 22));
-					ghost->Respawn(Vector2f(13, 13));
+					myAvatar->Respawn(TileCoord{13, 22});
+					ghost->Respawn(TileCoord{13, 13});
 					break;
 				}
 				else
@@ -155,13 +155,13 @@ bool Pacman::UpdateInput()
 	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
 
 	if (keystate[SDL_SCANCODE_UP])
-		myAvatar->SetNextMovement(Vector2f(0.f, -1.f));
+		myAvatar->SetNextMovement(TileCoord{0, -1});
 	else if (keystate[SDL_SCANCODE_DOWN])
-		myAvatar->SetNextMovement(Vector2f(0.f, 1.f));
+		myAvatar->SetNextMovement(TileCoord{0, 1});
 	else if (keystate[SDL_SCANCODE_RIGHT])
-		myAvatar->SetNextMovement(Vector2f(1.f, 0.f));
+		myAvatar->SetNextMovement(TileCoord{1, 0});
 	else if (keystate[SDL_SCANCODE_LEFT])
-		myAvatar->SetNextMovement(Vector2f(-1.f, 0.f));
+		myAvatar->SetNextMovement(TileCoord{-1, 0});
 	
 	if (keystate[SDL_SCANCODE_D])
 		myWorld->SwitchDebugDraw();

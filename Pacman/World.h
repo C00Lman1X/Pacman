@@ -5,21 +5,21 @@
 #include <map>
 #include <unordered_map>
 #include "Vector2f.h"
+#include "PathmapTile.h"
 #include "Sprite.h"
 
 class Drawer;
-class PathmapTile;
 class Dot;
 class BigDot;
 class Cherry;
 class Pacman;
 
-struct pairIntIntHash
+struct tileCoordHash
 {
-	size_t operator()(const std::pair<int, int>& p) const
+	size_t operator()(const TileCoord& c) const
 	{
 		// TODO: probably get rid of unordered_map, that's a poor hash for grid coords
-		return std::hash<int>{}(p.first) ^ std::hash<int>{}(p.second);
+		return std::hash<int>{}(c.x) ^ std::hash<int>{}(c.y);
 	}
 };
 
@@ -38,29 +38,26 @@ public:
 	void Init(std::shared_ptr<Drawer> gameDrawer);
 
 	void Draw(std::shared_ptr<Drawer> aDrawer);
-	bool TileIsValid(int anX, int anY);
-	bool TileIsValid(Vector2f tile);
+	bool TileIsValid(TileCoord tile);
 
-	bool TryEatDotAt(int x, int y);
-	bool TryEatBigDotAt(int x, int y);
-	bool TryEatCherryAt(int x, int y);
+	bool TryEatDotAt(TileCoord tile);
+	bool TryEatBigDotAt(TileCoord tile);
 	int GetDotCount();
 	int GetEatenDotsCount() { return myEatenDots; }
 
 	void Update();
 
 	std::shared_ptr<PathmapTile> GetTileFromCoords(float x, float y);
-	std::shared_ptr<PathmapTile> GetTile(int aFromX, int aFromY);
+	std::shared_ptr<PathmapTile> GetTile(TileCoord coord);
 
 	void SwitchDebugDraw() { myDebugDraw = !myDebugDraw; }
 
 private:
 	bool InitMap(std::shared_ptr<Drawer> gameDrawer);
 
-	std::unordered_map<std::pair<int,int>, std::shared_ptr<PathmapTile>, pairIntIntHash> myMap;
+	std::unordered_map<TileCoord, std::shared_ptr<PathmapTile>, tileCoordHash> myMap;
 	std::list<std::shared_ptr<Dot>> myDots;
 	std::list<std::shared_ptr<BigDot>> myBigDots;
-	std::list<Cherry*> myCherry;
 
 	Sprite::Ptr boardBackground;
 

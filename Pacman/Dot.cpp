@@ -1,7 +1,7 @@
 #include "Dot.h"
 
-Dot::Dot(Vector2f aPosition, Sprite::Ptr entitySprite)
-: StaticGameEntity(aPosition, entitySprite)
+Dot::Dot(TileCoord aTile, Sprite::Ptr entitySprite)
+: StaticGameEntity(aTile, entitySprite)
 {
 }
 

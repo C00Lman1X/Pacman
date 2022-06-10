@@ -1,12 +1,10 @@
 #include "MovableGameEntity.h"
 #include "World.h"
 
-MovableGameEntity::MovableGameEntity(const Vector2f& aPosition, Sprite::Ptr entitySprite)
-: GameEntity(aPosition, entitySprite)
+MovableGameEntity::MovableGameEntity(const TileCoord& aTile, Sprite::Ptr entitySprite)
+: GameEntity(aTile, entitySprite)
 {
-	Vector2f tile = aPosition;
-	tile /= World::TILE_SIZE;
-	Respawn(tile);
+	Respawn(aTile);
 }
 
 MovableGameEntity::~MovableGameEntity(void)
@@ -23,12 +21,12 @@ bool MovableGameEntity::IsAtNextTile()
 	return false;
 }
 
-void MovableGameEntity::SetNextTile(const Vector2f& tile)
+void MovableGameEntity::SetNextTile(const TileCoord& tile)
 {
 	myNextTile = tile;
 }
 
-void MovableGameEntity::Respawn(const Vector2f& aTile)
+void MovableGameEntity::Respawn(const TileCoord& aTile)
 {
 	myCurrentTile = myNextTile = aTile;
 

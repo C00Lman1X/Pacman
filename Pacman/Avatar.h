@@ -12,27 +12,26 @@ class Avatar : public MovableGameEntity
 public:
 	using Ptr = std::shared_ptr<Avatar>;
 
-	Avatar(const Vector2f& aPosition, std::shared_ptr<World> world, std::shared_ptr<Drawer> drawer);
+	Avatar(const TileCoord& aTile, std::shared_ptr<World> world, std::shared_ptr<Drawer> drawer);
 	~Avatar(void);
 
 	void Update(float aTime);
 
-	void SetNextMovement(const Vector2f& next) { myNextMovement = next; } 
-	Vector2f GetNextMovement() { return myNextMovement; }
+	void SetNextMovement(const TileCoord& next) { myNextMovement = next; } 
+	TileCoord GetNextMovement() { return myNextMovement; }
 	MovementDirection GetMovementDirection();
-	Vector2f GetMovementDirectionVec();
-	Vector2f GetPreviousMovementDirectionVec();
+	TileCoord GetMovementDirectionVec();
+	TileCoord GetPreviousMovementDirectionVec();
 
 	void Draw(std::shared_ptr<Drawer> drawer) override;
 
 private:
-	bool TryTile(int x, int y);
-	bool TryTile(Vector2f tile);
+	bool TryToSetNextTile(TileCoord tileCoord);
 	void MyMove(float dt);
 
 private:
-	Vector2f myNextMovement;
-	float mySpeed = 200.f;
+	TileCoord myNextMovement;
+	float mySpeed = 60.f;
 	std::map<MovementDirection, Sprite::Ptr> mySprites;
 	MovementDirection myPreviousDirection;
 

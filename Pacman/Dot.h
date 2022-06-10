@@ -9,7 +9,7 @@ class Dot : public StaticGameEntity
 public:
 	using Ptr = std::shared_ptr<Dot>;
 
-	Dot(Vector2f aPosition, Sprite::Ptr entitySprite);
+	Dot(TileCoord aTile, Sprite::Ptr entitySprite);
 	~Dot(void);
 };
 

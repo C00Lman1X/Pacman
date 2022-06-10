@@ -4,11 +4,11 @@
 #include "Ghost.h"
 #include "Drawer.h"
 
-Avatar::Avatar(const Vector2f& aPosition, World::Ptr world, Drawer::Ptr drawer)
-	: MovableGameEntity(aPosition, nullptr)
+Avatar::Avatar(const TileCoord& aTile, World::Ptr world, Drawer::Ptr drawer)
+	: MovableGameEntity(aTile, nullptr)
 	, myWorld(world)
 {
-	myNextTile = {myCurrentTile.myX - 1.f, myCurrentTile.myY}; 
+	myNextTile = myCurrentTile - TileCoord{1,0}; 
 
 	mySprites[MovementDirection::Up] = Sprite::Create({"open_up_32.png", "closed_up_32.png"}, drawer, 32, 32);
 	mySprites[MovementDirection::Down] = Sprite::Create({"open_down_32.png", "closed_down_32.png"}, drawer, 32, 32);
@@ -31,22 +31,17 @@ void Avatar::Update(float aTime)
 	sprite = mySprites[GetMovementDirection()]; //TODO: change sprite only when changing direction
 }
 
-bool Avatar::TryTile(int x, int y)
+bool Avatar::TryToSetNextTile(TileCoord tileCoord)
 {
-	PathmapTile::Ptr desiredTile = myWorld->GetTile(x, y);
+	PathmapTile::Ptr desiredTile = myWorld->GetTile(tileCoord);
 	if (desiredTile
 		&& !desiredTile->myIsBlockingFlag
-		&& !Ghost::IsHomeTile({desiredTile->myX, desiredTile->myY}))
+		&& !Ghost::IsHomeTile(tileCoord))
 	{
-		myNextTile = {x, y};
+		myNextTile = tileCoord;
 		return true;
 	}
 	return false;
-}
-
-bool Avatar::TryTile(Vector2f tile)
-{
-	return TryTile(tile.myX, tile.myY);
 }
 
 void Avatar::MyMove(float dt)
@@ -54,12 +49,12 @@ void Avatar::MyMove(float dt)
 	// if we're not moving anywhere
 	if (IsAtNextTile())
 	{
-		if (myNextMovement == Vector2f{0.f,0.f})
+		if (myNextMovement == TileCoord{0,0})
 			return;
 		
-		if (TryTile(myCurrentTile + myNextMovement))
+		if (TryToSetNextTile(myCurrentTile + myNextMovement))
 		{
-			myNextMovement = Vector2f{0.f, 0.f};
+			myNextMovement = TileCoord{0,0};
 		}
 		else
 		{
@@ -67,13 +62,13 @@ void Avatar::MyMove(float dt)
 		}
 	}
 
-	Vector2f gridDirection = myNextTile - myCurrentTile;
-	if ((myNextMovement.myX != 0 && myNextMovement.myX == -gridDirection.myX)
-		|| (myNextMovement.myY != 0 && myNextMovement.myY == -gridDirection.myY))
+	TileCoord gridDirection = myNextTile - myCurrentTile;
+	if ((myNextMovement.x != 0 && myNextMovement.x == -gridDirection.x)
+		|| (myNextMovement.y != 0 && myNextMovement.y == -gridDirection.y))
 	{
 		// turning backwards
 		std::swap(myCurrentTile, myNextTile);
-		myNextMovement = Vector2f{0.f, 0.f};
+		myNextMovement = TileCoord{0, 0};
 	}
 
 	Vector2f nextTilePos{myNextTile * World::TILE_SIZE};
@@ -89,7 +84,7 @@ void Avatar::MyMove(float dt)
 		myCurrentTile = myNextTile;
 
 		// check for portal
-		auto tile = myWorld->GetTile(myCurrentTile.myX, myCurrentTile.myY);
+		auto tile = myWorld->GetTile(myCurrentTile);
 		if (tile && tile->linkedTile)
 		{
 			myCurrentTile = {tile->linkedTile->first, tile->linkedTile->second};
@@ -98,20 +93,20 @@ void Avatar::MyMove(float dt)
 		myPosition = myCurrentTile * World::TILE_SIZE;
 		distanceToMove -= distanceToNextTile;
 
-		if (myNextMovement != Vector2f{0.f,0.f})
+		if (myNextMovement != TileCoord{0,0})
 		{
-			Vector2f desiredTile = myCurrentTile + myNextMovement;
+			TileCoord desiredTile = myCurrentTile + myNextMovement;
 
 			//trying to turn
-			if (TryTile(desiredTile))
+			if (TryToSetNextTile(desiredTile))
 			{
-				myNextMovement = Vector2f{0, 0};
+				myNextMovement = TileCoord{0, 0};
 				return;
 			}
 		}
 		
-		Vector2f desiredTile = myCurrentTile + GetPreviousMovementDirectionVec();
-		if (!TryTile(desiredTile))
+		TileCoord desiredTile = myCurrentTile + GetPreviousMovementDirectionVec();
+		if (!TryToSetNextTile(desiredTile))
 		{
 			myNextTile = myCurrentTile;
 		}
@@ -148,41 +143,41 @@ void Avatar::Draw(std::shared_ptr<Drawer> drawer)
 
 Avatar::MovementDirection Avatar::GetMovementDirection()
 {
-	if (myNextTile.myX > myCurrentTile.myX)
+	if (myNextTile.x > myCurrentTile.x)
 		return MovementDirection::Right;
-	else if (myNextTile.myX < myCurrentTile.myX)
+	else if (myNextTile.x < myCurrentTile.x)
 		return MovementDirection::Left;
-	else if (myNextTile.myY < myCurrentTile.myY)
+	else if (myNextTile.y < myCurrentTile.y)
 		return MovementDirection::Up;
-	else if (myNextTile.myY > myCurrentTile.myY)
+	else if (myNextTile.y > myCurrentTile.y)
 		return MovementDirection::Down;
 	else
 		return myPreviousDirection;
 }
 
-Vector2f Avatar::GetMovementDirectionVec()
+TileCoord Avatar::GetMovementDirectionVec()
 {
-	Vector2f directionVec{0.f, 0.f};
+	TileCoord directionVec{0, 0};
 	switch (GetMovementDirection())
 	{
-		case MovementDirection::Right: directionVec = {1.f, 0.f}; break;
-		case MovementDirection::Left: directionVec = {-1.f, 0.f}; break;
-		case MovementDirection::Up: directionVec = {0.f, -1.f}; break;
-		case MovementDirection::Down: directionVec = {0.f, 1.f}; break;
+		case MovementDirection::Right: directionVec = {1, 0}; break;
+		case MovementDirection::Left: directionVec = {-1, 0}; break;
+		case MovementDirection::Up: directionVec = {0, -1}; break;
+		case MovementDirection::Down: directionVec = {0, 1}; break;
 		default: printf("ERROR: Wrong direction!\n"); break;
 	}
 	return directionVec;
 }
 
-Vector2f Avatar::GetPreviousMovementDirectionVec()
+TileCoord Avatar::GetPreviousMovementDirectionVec()
 {
-	Vector2f directionVec{0.f, 0.f};
+	TileCoord directionVec{0, 0};
 	switch (myPreviousDirection)
 	{
-		case MovementDirection::Right: directionVec = {1.f, 0.f}; break;
-		case MovementDirection::Left: directionVec = {-1.f, 0.f}; break;
-		case MovementDirection::Up: directionVec = {0.f, -1.f}; break;
-		case MovementDirection::Down: directionVec = {0.f, 1.f}; break;
+		case MovementDirection::Right: directionVec = {1, 0}; break;
+		case MovementDirection::Left: directionVec = {-1, 0}; break;
+		case MovementDirection::Up: directionVec = {0, -1}; break;
+		case MovementDirection::Down: directionVec = {0, 1}; break;
 		default: printf("ERROR: Wrong direction!\n"); break;
 	}
 	return directionVec;

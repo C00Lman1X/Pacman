@@ -3,6 +3,7 @@
 
 #include "GameEntity.h"
 #include "Vector2f.h"
+#include "PathmapTile.h"
 
 class MovableGameEntity : public GameEntity
 {
@@ -16,22 +17,20 @@ public:
 		DirectionCount = 4
 	};
 
-	MovableGameEntity(const Vector2f& aPosition, Sprite::Ptr entitySprite);
+	MovableGameEntity(const TileCoord& aTile, Sprite::Ptr entitySprite);
 	~MovableGameEntity(void);
 
-	void Respawn(const Vector2f& aTile);
+	void Respawn(const TileCoord& aTile);
 
-	void SetNextTile(const Vector2f& tile);
-	const Vector2f& GetCurrentTile() const { return myCurrentTile; }
-	const Vector2f& GetNextTile() const { return myNextTile; }
+	void SetNextTile(const TileCoord& tile);
+	const TileCoord& GetNextTile() const { return myNextTile; }
 
 	bool IsAtNextTile();
 
 	void Move();
 
 protected:
-	Vector2f myCurrentTile;
-	Vector2f myNextTile;
+	TileCoord myNextTile;
 };
 
 #endif // MOVABLEGAMEENTITY_H

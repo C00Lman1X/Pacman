@@ -6,6 +6,20 @@
 
 class Dot;
 class BigDot;
+class Vector2f;
+
+struct TileCoord
+{
+	int x = 0;
+	int y = 0;
+
+	bool operator==(const TileCoord &other) const;
+	bool operator!=(const TileCoord &other) const;
+	const TileCoord operator-(const TileCoord &other) const ;
+	const TileCoord operator+(const TileCoord &other) const ;
+	const TileCoord operator*(int aInt) const ;
+	const Vector2f operator*(float aFloat) const;
+};
 
 struct PathmapTile
 {
@@ -13,9 +27,7 @@ struct PathmapTile
 	PathmapTile(int anX, int anY, bool aIsBlockingFlag);
 	~PathmapTile(void);
 
-
-	int myX;
-	int myY;
+	TileCoord coord;
 	bool myIsBlockingFlag;
 
 	std::shared_ptr<Dot> myDot = nullptr;

@@ -3,6 +3,8 @@
 
 #include <math.h> 
 
+struct TileCoord;
+
 class Vector2f
 {
 public:
@@ -24,6 +26,8 @@ public:
 		myX = anX;
 		myY = anY;
 	}
+
+	Vector2f(const TileCoord& tile);
 
 	bool operator==(const Vector2f &other) const
 	{

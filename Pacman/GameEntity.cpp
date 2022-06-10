@@ -2,14 +2,10 @@
 #include "Drawer.h"
 #include "World.h"
 
-GameEntity::GameEntity(const Vector2f& aPosition, Sprite::Ptr entitySprite)
-:myPosition(aPosition)
-,sprite(entitySprite)
-,myIdMarkedForDeleteFlag(false)
-{
-}
-
-GameEntity::~GameEntity(void)
+GameEntity::GameEntity(const TileCoord& aTile, Sprite::Ptr entitySprite)
+	: myCurrentTile(aTile)
+	, myPosition(aTile * World::TILE_SIZE)
+	, sprite(entitySprite)
 {
 }
 
