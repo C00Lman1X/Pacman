@@ -4,6 +4,7 @@
 #include "Vector2f.h"
 #include <list>
 #include <memory>
+#include "SDL_scancode.h"
 
 struct SDL_Surface;
 class Drawer;
@@ -26,6 +27,8 @@ public:
 	const std::list<std::shared_ptr<Ghost>> GetGhosts() const { return ghosts; }
 
 	const std::shared_ptr<Avatar> GetAvatar() const { return myAvatar; }
+
+	void KeyPress(SDL_Scancode key) { myKeysPressed.push_back(key); }
 
 private:
 	Pacman(std::shared_ptr<Drawer> aDrawer);
@@ -51,6 +54,8 @@ private:
 	std::shared_ptr<SpriteFont> scoreDisplay;
 	std::shared_ptr<SpriteFont> livesDisplay;
 	std::shared_ptr<SpriteFont> fpsDisplay;
+
+	std::list<SDL_Scancode> myKeysPressed;
 };
 
 #endif // PACMAN_H

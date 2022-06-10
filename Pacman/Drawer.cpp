@@ -74,7 +74,9 @@ std::shared_ptr<TTF_Font> Drawer::GetFontResource(std::string assetPath, int siz
 	{
 		font = std::shared_ptr<TTF_Font>(
 			TTF_OpenFont(assetPath.c_str(), 24),
-			TTF_CloseFont);
+			[](TTF_Font* font) {
+				// TODO: here should be deleter. just TTF_CloseFont causes crash
+			});
 		if (!font)
 		{
 			printf("Failed to load font %s; SDL_error: %s", assetPath.c_str(), SDL_GetError());

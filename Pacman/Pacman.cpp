@@ -29,10 +29,10 @@ Pacman::Pacman(Drawer::Ptr aDrawer)
 , myFps(0)
 , myLives(3)
 {
-	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Red, myDrawer));
-	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Cyan, myDrawer, ghosts.back()));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,10}, Ghost::Red, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{12,13}, Ghost::Cyan, myDrawer, ghosts.back()));
 	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Pink, myDrawer));
-	ghosts.push_back(std::make_shared<Ghost>(TileCoord{13,13}, Ghost::Orange, myDrawer));
+	ghosts.push_back(std::make_shared<Ghost>(TileCoord{14,13}, Ghost::Orange, myDrawer));
 
 	myWorld = std::make_shared<World>(this);
 
@@ -152,22 +152,39 @@ void Pacman::SetFPS(int fps)
 
 bool Pacman::UpdateInput()
 {
-	const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+	if (myKeysPressed.empty())
+		return true;
 
-	if (keystate[SDL_SCANCODE_UP])
-		myAvatar->SetNextMovement(TileCoord{0, -1});
-	else if (keystate[SDL_SCANCODE_DOWN])
-		myAvatar->SetNextMovement(TileCoord{0, 1});
-	else if (keystate[SDL_SCANCODE_RIGHT])
-		myAvatar->SetNextMovement(TileCoord{1, 0});
-	else if (keystate[SDL_SCANCODE_LEFT])
-		myAvatar->SetNextMovement(TileCoord{-1, 0});
-	
-	if (keystate[SDL_SCANCODE_D])
-		myWorld->SwitchDebugDraw();
+	for(auto key : myKeysPressed)
+	{
+		switch (key)
+		{
+		case SDL_SCANCODE_UP:
+			myAvatar->SetNextMovement(TileCoord{0, -1});
+			break;
+		case SDL_SCANCODE_DOWN:
+			myAvatar->SetNextMovement(TileCoord{0, 1});
+			break;
+		case SDL_SCANCODE_RIGHT:
+			myAvatar->SetNextMovement(TileCoord{1, 0});
+			break;
+		case SDL_SCANCODE_LEFT:
+			myAvatar->SetNextMovement(TileCoord{-1, 0});
+			break;
+			
+		case SDL_SCANCODE_D:
+			myWorld->SwitchDebugDraw();
+			break;
+			
+		case SDL_SCANCODE_ESCAPE:
+			return false;
+		
+		default:
+			break;
+		}
 
-	if (keystate[SDL_SCANCODE_ESCAPE])
-		return false;
+		myKeysPressed.clear();
+	}
 
 	return true;
 }

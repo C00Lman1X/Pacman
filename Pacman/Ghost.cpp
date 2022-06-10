@@ -288,8 +288,8 @@ bool Ghost::CanLeaveHome(std::shared_ptr<World> aWorld)
 	switch (myType)
 	{
 	case Ghost::Red: return true;
-	case Ghost::Pink: return aWorld->GetEatenDotsCount() > 100;
-	case Ghost::Cyan: return aWorld->GetEatenDotsCount() > 200;
-	case Ghost::Orange: return aWorld->GetEatenDotsCount() > 300;
+	case Ghost::Pink: return true;
+	case Ghost::Cyan: return aWorld->GetEatenDotsCount() > 30;
+	case Ghost::Orange: return aWorld->GetEatenDotsCount() > 60;
 	}
 }
