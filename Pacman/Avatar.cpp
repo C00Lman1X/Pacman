@@ -75,9 +75,9 @@ void Avatar::MyMove(float dt)
 	Vector2f direction = nextTilePos - myPosition;
 
 	float distanceToMove = dt * mySpeed;
-	float distanceToNextTile = direction.Length();
+	float sqrDistanceToNextTile = direction.myX*direction.myX + direction.myY*direction.myY;
 
-	if (distanceToMove > distanceToNextTile)
+	if (distanceToMove > sqrDistanceToNextTile)
 	{
 		//steped on next tile
 		myPreviousDirection = GetMovementDirection();
@@ -91,7 +91,7 @@ void Avatar::MyMove(float dt)
 		}
 
 		myPosition = myCurrentTile * World::TILE_SIZE;
-		distanceToMove -= distanceToNextTile;
+		distanceToMove -= sqrt(sqrDistanceToNextTile);
 
 		if (myNextMovement != TileCoord{0,0})
 		{

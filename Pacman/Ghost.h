@@ -12,6 +12,8 @@ class Avatar;
 class Ghost : public MovableGameEntity
 {
 public:
+	static constexpr float ORANGE_DISTANCE = 8.f;
+
 	using Ptr = std::shared_ptr<Ghost>;
 
 	enum GhostBehavior

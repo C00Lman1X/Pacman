@@ -154,7 +154,9 @@ void Ghost::ChooseNextDirection(World::Ptr aWorld, Avatar::Ptr avatar)
 		[targetTile](const TileCoord& tile1, const TileCoord& tile2){
 			Vector2f vec1{targetTile - tile1};
 			Vector2f vec2{targetTile - tile2};
-			return vec1.Length() < vec2.Length();
+			float sqrLength1 = vec1.myX*vec1.myX + vec1.myY*vec1.myY;
+			float sqrLength2 = vec2.myX*vec2.myX + vec2.myY*vec2.myY;
+			return sqrLength1 < sqrLength2;
 		});
 	
 	myDesiredMovement = *desiredTileIt - myNextTile;
@@ -205,8 +207,9 @@ TileCoord Ghost::BehaveChase(Avatar::Ptr avatar)
 		}
 		case GhostType::Orange:
 		{
-			float distanceToAvatar = Vector2f{avatar->GetCurrentTile() - myCurrentTile}.Length();
-			if (distanceToAvatar <= 8.f)
+			Vector2f vectorToAvatar = avatar->GetCurrentTile() - myCurrentTile;
+			float sqrLengthToAvatar = vectorToAvatar.myX*vectorToAvatar.myX + vectorToAvatar.myY*vectorToAvatar.myY;
+			if (sqrLengthToAvatar <= ORANGE_DISTANCE * ORANGE_DISTANCE)
 			{
 				targetTile = BehaveScatter();
 			}

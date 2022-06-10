@@ -19,6 +19,7 @@ struct tileCoordHash
 	size_t operator()(const TileCoord& c) const
 	{
 		// TODO: probably get rid of unordered_map, that's a poor hash for grid coords
+		// Considered option: store tiles in vector and index by calculating y*TILES_IN_ROW + x
 		return std::hash<int>{}(c.x) ^ std::hash<int>{}(c.y);
 	}
 };
